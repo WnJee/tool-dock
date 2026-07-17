@@ -39,6 +39,26 @@ Cloudflare Pages 推荐配置：
 - Output directory：`dist`
 - Node.js：22 或 24
 
+## 部署到 Cloudflare Pages
+
+首次使用需要登录：
+
+```bash
+npx wrangler login
+```
+
+之后运行一条命令即可依次执行测试、生产构建和 Pages 部署：
+
+```bash
+npm run deploy:pages
+```
+
+脚本默认部署到 `tool-dock` 项目的 `main` 分支。其他项目或分支可以通过环境变量覆盖：
+
+```bash
+CLOUDFLARE_PAGES_PROJECT=my-project CLOUDFLARE_PAGES_BRANCH=preview npm run deploy:pages
+```
+
 ## 数据与隐私
 
 - 工具输入不会上传到服务器。

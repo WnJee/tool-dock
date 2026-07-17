@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
+    "deploy:pages": "bash scripts/deploy-pages.sh",
     "preview": "vite preview",
     "test": "vitest run"
   },
@@ -20,6 +21,7 @@
     "@types/react": "latest",
     "@types/react-dom": "latest",
     "typescript": "latest",
-    "vitest": "latest"
+    "vitest": "latest",
+    "wrangler": "^4.112.0"
   }
 }
