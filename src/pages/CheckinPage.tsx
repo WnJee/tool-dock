@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useState } from 'react'
 import { CalendarCheck2, Check, CircleCheckBig, ExternalLink, Link2, Pencil, Plus, Search, Trash2, X } from 'lucide-react'
-import { getLocalDateKey, normalizeWebsiteUrl } from './checkin-utils'
+import PageHeader from '../components/layout/PageHeader'
+import { getLocalDateKey, normalizeWebsiteUrl } from '../checkin-utils'
+import { getStoredValue } from '../storage'
 
 interface CheckinSite {
   id: string
@@ -16,20 +18,11 @@ interface DailyCompletion {
 
 type Filter = 'pending' | 'all' | 'completed'
 
-const readStored = <T,>(key: string, fallback: T): T => {
-  try {
-    const value = localStorage.getItem(key)
-    return value ? JSON.parse(value) as T : fallback
-  } catch {
-    return fallback
-  }
-}
-
 function CheckinPage() {
   const [today, setToday] = useState(getLocalDateKey)
-  const [sites, setSites] = useState<CheckinSite[]>(() => readStored('tooldock.checkins.sites', []))
+  const [sites, setSites] = useState<CheckinSite[]>(() => getStoredValue('tooldock.checkins.sites', []))
   const [completion, setCompletion] = useState<DailyCompletion>(() => {
-    const stored = readStored<DailyCompletion>('tooldock.checkins.completion', { date: today, ids: [] })
+    const stored = getStoredValue<DailyCompletion>('tooldock.checkins.completion', { date: today, ids: [] })
     return stored.date === today ? stored : { date: today, ids: [] }
   })
   const [filter, setFilter] = useState<Filter>('pending')
@@ -87,12 +80,10 @@ function CheckinPage() {
   }
 
   const progress = sites.length === 0 ? 0 : Math.round(completedCount / sites.length * 100)
+  const addAction = <button className="primary-button" onClick={() => openEditor()}><Plus size={17} /> 添加网站</button>
   return (
-    <div className="content-page checkin-page">
-      <div className="page-heading checkin-heading">
-        <div className="heading-main"><span className="tool-icon large checkin-icon"><CalendarCheck2 size={25} /></span><div><h1>每日签到</h1><p>{formatToday()} · 签到状态将在第二天自动重置</p></div></div>
-        <button className="primary-button" onClick={() => openEditor()}><Plus size={17} /> 添加网站</button>
-      </div>
+    <div className="content-page checkin-page page-container">
+      <PageHeader icon={CalendarCheck2} title="每日签到" description={`${formatToday()} · 签到状态将在第二天自动重置`} color="#55caa3" action={addAction} />
 
       <section className="checkin-summary">
         <div className="summary-count"><span>今日进度</span><strong>{completedCount}<em>/ {sites.length}</em></strong><small>{sites.length === 0 ? '先添加需要每天签到的网站' : completedCount === sites.length ? '今天的签到已经全部完成' : `还有 ${sites.length - completedCount} 个网站待签到`}</small></div>
