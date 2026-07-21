@@ -1,5 +1,6 @@
 interface Env {
   TMDB_READ_TOKEN?: string
+  TMDB_API_KEY?: string
 }
 
 interface Context {
@@ -30,7 +31,7 @@ const TMDB_API = 'https://api.themoviedb.org/3'
 const SORT_OPTIONS = new Set(['popularity.desc', 'vote_average.desc', 'primary_release_date.desc', 'primary_release_date.asc'])
 
 export async function onRequestGet({ request, env }: Context): Promise<Response> {
-  if (!env.TMDB_READ_TOKEN) return json({ error: '尚未配置 TMDB Read Access Token' }, 503)
+  if (!env.TMDB_READ_TOKEN && !env.TMDB_API_KEY) return json({ error: '尚未配置 TMDB API 凭据' }, 503)
 
   const input = new URL(request.url).searchParams
   const page = clampNumber(input.get('page'), 1, 500, 1)
@@ -41,13 +42,15 @@ export async function onRequestGet({ request, env }: Context): Promise<Response>
   const yearTo = clampNumber(input.get('yearTo'), 1888, 2100)
   const rating = clampNumber(input.get('rating'), 0, 10)
   const sort = SORT_OPTIONS.has(input.get('sort') ?? '') ? input.get('sort')! : 'popularity.desc'
-  const headers = { Authorization: `Bearer ${env.TMDB_READ_TOKEN}`, accept: 'application/json' }
+  const headers = { ...(env.TMDB_READ_TOKEN ? { Authorization: `Bearer ${env.TMDB_READ_TOKEN}` } : {}), accept: 'application/json' }
+  const apiKey = env.TMDB_READ_TOKEN ? undefined : env.TMDB_API_KEY
+  const fetchTmdb = <T>(path: string, params: Record<string, string | number>) => tmdbFetch<T>(path, params, headers, apiKey)
 
   try {
     let personId: number | undefined
     let matchedPerson: string | undefined
     if (person) {
-      const people = await tmdbFetch<{ results: Array<{ id: number; name: string }> }>('/search/person', { query: person, language: 'zh-CN' }, headers)
+      const people = await fetchTmdb<{ results: Array<{ id: number; name: string }> }>('/search/person', { query: person, language: 'zh-CN' })
       personId = people.results[0]?.id
       matchedPerson = people.results[0]?.name
       if (!personId) return json({ page: 1, totalPages: 0, totalResults: 0, results: [] })
@@ -64,13 +67,13 @@ export async function onRequestGet({ request, env }: Context): Promise<Response>
           ...(yearTo ? { 'primary_release_date.lte': `${yearTo}-12-31` } : {}),
           ...(rating ? { 'vote_average.gte': rating, 'vote_count.gte': 20 } : sort === 'vote_average.desc' ? { 'vote_count.gte': 100 } : {}),
         }
-    const response = await tmdbFetch<TmdbResponse>(useTitleSearch ? '/search/movie' : '/discover/movie', params, headers)
+    const response = await fetchTmdb<TmdbResponse>(useTitleSearch ? '/search/movie' : '/discover/movie', params)
     let results = response.results
 
     if (useTitleSearch) {
       let personMovieIds: Set<number> | undefined
       if (personId) {
-        const credits = await tmdbFetch<{ cast: TmdbMovie[]; crew: TmdbMovie[] }>(`/person/${personId}/movie_credits`, { language: 'zh-CN' }, headers)
+        const credits = await fetchTmdb<{ cast: TmdbMovie[]; crew: TmdbMovie[] }>(`/person/${personId}/movie_credits`, { language: 'zh-CN' })
         personMovieIds = new Set([...credits.cast, ...credits.crew].map((movie) => movie.id))
       }
       results = results.filter((movie) => {
@@ -107,9 +110,10 @@ export async function onRequestGet({ request, env }: Context): Promise<Response>
   }
 }
 
-async function tmdbFetch<T>(path: string, params: Record<string, string | number>, headers: Record<string, string>): Promise<T> {
+async function tmdbFetch<T>(path: string, params: Record<string, string | number>, headers: Record<string, string>, apiKey?: string): Promise<T> {
   const url = new URL(`${TMDB_API}${path}`)
   Object.entries(params).forEach(([key, value]) => url.searchParams.set(key, String(value)))
+  if (apiKey) url.searchParams.set('api_key', apiKey)
   const response = await fetch(url, { headers })
   if (!response.ok) throw new Error(response.status === 401 ? 'TMDB Token 无效或已过期' : `TMDB 服务返回 ${response.status}`)
   return response.json() as Promise<T>

@@ -7,7 +7,7 @@ describe('movie Pages Function', () => {
   it('requires a TMDB token', async () => {
     const response = await onRequestGet({ request: new Request('https://example.com/api/movies'), env: {} })
     expect(response.status).toBe(503)
-    await expect(response.json()).resolves.toEqual({ error: '尚未配置 TMDB Read Access Token' })
+    await expect(response.json()).resolves.toEqual({ error: '尚未配置 TMDB API 凭据' })
   })
 
   it('maps TMDB discover results into the public response', async () => {
@@ -46,4 +46,3 @@ describe('movie Pages Function', () => {
     expect(options.headers.Authorization).toBe('Bearer token')
   })
 })
-

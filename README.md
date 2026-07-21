@@ -54,7 +54,7 @@ Cloudflare Pages 推荐配置：
 - Output directory：`dist`
 - Node.js：22 或 24
 
-影片库还需要在 Cloudflare Pages 项目的设置中添加加密变量 `TMDB_READ_TOKEN`，值为 TMDB 账户 API 设置页提供的 Read Access Token。前端不会接触该 Token，所有 TMDB 请求都由 `functions/api/movies.ts` 转发。
+影片库还需要在 Cloudflare Pages 项目的设置中添加加密变量 `TMDB_READ_TOKEN`（推荐，值为 Read Access Token）或 `TMDB_API_KEY`。前端不会接触凭据，所有 TMDB 请求都由 `functions/api/movies.ts` 转发。
 
 ## 部署到 Cloudflare Pages
 
