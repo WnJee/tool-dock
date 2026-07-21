@@ -15,6 +15,24 @@ const DEFAULT_FILTERS: MovieFilters = {
   sort: 'popularity.desc',
 }
 
+const YEAR_RANGES = [
+  { label: '全部年份', from: '', to: '' },
+  { label: '2020年代', from: '2020', to: '2029' },
+  { label: '2010年代', from: '2010', to: '2019' },
+  { label: '2000年代', from: '2000', to: '2009' },
+  { label: '1990年代', from: '1990', to: '1999' },
+  { label: '1980年代', from: '1980', to: '1989' },
+  { label: '更早', from: '1888', to: '1979' },
+] as const
+
+const RATINGS = [
+  { label: '不限评分', value: '' },
+  { label: '6.0+', value: '6' },
+  { label: '7.0+', value: '7' },
+  { label: '8.0+', value: '8' },
+  { label: '9.0+', value: '9' },
+] as const
+
 function MovieLibraryPage() {
   const [filters, setFilters] = useState(DEFAULT_FILTERS)
   const [appliedFilters, setAppliedFilters] = useState(DEFAULT_FILTERS)
@@ -97,10 +115,10 @@ function MovieLibraryPage() {
         <label><span>排序</span><select value={filters.sort} onChange={(event) => setFilters({ ...filters, sort: event.target.value })}><option value="popularity.desc">热度从高到低</option><option value="vote_average.desc">评分从高到低</option><option value="primary_release_date.desc">上映时间从新到旧</option><option value="primary_release_date.asc">上映时间从旧到新</option></select></label>
         <div className="movie-filter-actions"><button type="button" className="secondary-button" onClick={() => setDetailsOpen((open) => !open)}><SlidersHorizontal size={15} /> 详细搜索 <ChevronDown size={14} className={detailsOpen ? 'rotate-180' : ''} /></button><button type="button" className="secondary-button" onClick={reset} title="重置筛选"><RotateCcw size={15} /> 重置</button><button type="submit" className="primary-button"><Search size={15} /> 搜索</button></div>
         {detailsOpen && <div className="movie-details">
-          <label><span>类型</span><select value={filters.genre} onChange={(event) => setFilters({ ...filters, genre: event.target.value })}><option value="">全部类型</option>{MOVIE_GENRES.map((genre) => <option key={genre.id} value={genre.id}>{genre.name}</option>)}</select></label>
-          <label><span>地区</span><select value={filters.region} onChange={(event) => setFilters({ ...filters, region: event.target.value })}><option value="">全部地区</option>{MOVIE_REGIONS.map((region) => <option key={region.code} value={region.code}>{region.name}</option>)}</select></label>
-          <label><span>年份范围</span><div className="year-range"><input type="number" min="1888" max="2100" value={filters.yearFrom} onChange={(event) => setFilters({ ...filters, yearFrom: event.target.value })} placeholder="起始" /><em>至</em><input type="number" min="1888" max="2100" value={filters.yearTo} onChange={(event) => setFilters({ ...filters, yearTo: event.target.value })} placeholder="结束" /></div></label>
-          <label><span>最低评分</span><select value={filters.rating} onChange={(event) => setFilters({ ...filters, rating: event.target.value })}><option value="">不限</option><option value="6">6.0</option><option value="7">7.0</option><option value="8">8.0</option><option value="9">9.0</option></select></label>
+          <FilterRow label="类型"><FilterChip active={!filters.genre} onClick={() => setFilters({ ...filters, genre: '' })}>全部类型</FilterChip>{MOVIE_GENRES.map((genre) => <FilterChip key={genre.id} active={filters.genre === String(genre.id)} onClick={() => setFilters({ ...filters, genre: String(genre.id) })}>{genre.name}</FilterChip>)}</FilterRow>
+          <FilterRow label="地区"><FilterChip active={!filters.region} onClick={() => setFilters({ ...filters, region: '' })}>全部地区</FilterChip>{MOVIE_REGIONS.map((region) => <FilterChip key={region.code} active={filters.region === region.code} onClick={() => setFilters({ ...filters, region: region.code })}>{region.name}</FilterChip>)}</FilterRow>
+          <FilterRow label="年份范围">{YEAR_RANGES.map((range) => <FilterChip key={range.label} active={filters.yearFrom === range.from && filters.yearTo === range.to} onClick={() => setFilters({ ...filters, yearFrom: range.from, yearTo: range.to })}>{range.label}</FilterChip>)}<div className="year-range"><input aria-label="起始年份" type="number" min="1888" max="2100" value={filters.yearFrom} onChange={(event) => setFilters({ ...filters, yearFrom: event.target.value })} placeholder="起始年份" /><em>至</em><input aria-label="结束年份" type="number" min="1888" max="2100" value={filters.yearTo} onChange={(event) => setFilters({ ...filters, yearTo: event.target.value })} placeholder="结束年份" /></div></FilterRow>
+          <FilterRow label="最低评分">{RATINGS.map((rating) => <FilterChip key={rating.label} active={filters.rating === rating.value} onClick={() => setFilters({ ...filters, rating: rating.value })}>{rating.label}</FilterChip>)}</FilterRow>
         </div>}
       </form>
 
@@ -117,6 +135,14 @@ function MovieLibraryPage() {
       </section>
     </div>
   )
+}
+
+function FilterRow({ label, children }: { label: string; children: React.ReactNode }) {
+  return <div className="movie-filter-row"><span>{label}</span><div>{children}</div></div>
+}
+
+function FilterChip({ active, children, onClick }: { active: boolean; children: React.ReactNode; onClick: () => void }) {
+  return <button type="button" className={`movie-filter-chip ${active ? 'active' : ''}`} onClick={onClick}>{children}</button>
 }
 
 function MovieCard({ movie }: { movie: MovieSummary }) {
