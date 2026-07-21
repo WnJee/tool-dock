@@ -236,6 +236,53 @@ kbd { border: 1px solid var(--border); border-bottom-color: var(--faint); backgr
 .checkin-empty strong { color: var(--text); font-size: 12px; margin: 13px 0 5px; }
 .checkin-empty span { color: var(--muted); font-size: 9px; }
 .checkin-empty button { margin-top: 17px; border: 1px solid var(--border); background: var(--panel-2); color: var(--text); border-radius: 7px; height: 32px; padding: 0 11px; display: flex; align-items: center; gap: 6px; cursor: pointer; font-size: 10px; }
+
+.movie-page { max-width: 1420px; height: auto; min-height: 100%; }
+.movie-filters { border: 1px solid var(--border); border-radius: 8px; background: var(--panel); padding: 16px; display: grid; grid-template-columns: minmax(220px, 2fr) minmax(170px, 1.3fr) 130px minmax(190px, 1.2fr); gap: 13px 14px; }
+.movie-filters > label { min-width: 0; display: flex; flex-direction: column; gap: 7px; }
+.movie-filters > label > span { color: var(--muted); font-size: 9px; }
+.movie-filters input, .movie-filters select { width: 100%; height: 36px; border: 1px solid var(--border); border-radius: 7px; outline: 0; background: var(--bg); color: var(--text); padding: 0 10px; font-size: 10px; }
+.movie-filters input:focus, .movie-filters select:focus { border-color: var(--accent); }
+.movie-query > div { position: relative; }
+.movie-query svg { position: absolute; left: 10px; top: 10px; color: var(--faint); }
+.movie-query input { padding-left: 33px; }
+.year-range { display: grid; grid-template-columns: 1fr 18px 1fr; align-items: center; gap: 5px; }
+.year-range em { color: var(--faint); font-size: 9px; font-style: normal; text-align: center; }
+.movie-filter-actions { display: flex; align-items: flex-end; justify-content: flex-end; gap: 8px; }
+.movie-results { margin-top: 18px; border: 1px solid var(--border); border-radius: 8px; background: var(--panel); overflow: hidden; }
+.movie-results-heading { min-height: 64px; padding: 12px 16px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; gap: 18px; }
+.movie-results-heading > div:first-child { min-width: 0; display: flex; flex-direction: column; }
+.movie-results-heading strong { font-size: 12px; }
+.movie-results-heading span { margin-top: 4px; color: var(--muted); font-size: 9px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.page-controls { height: 32px; display: flex; align-items: center; gap: 9px; color: var(--muted); font-size: 9px; white-space: nowrap; }
+.page-controls button { width: 30px; height: 30px; border: 1px solid var(--border); border-radius: 7px; background: var(--panel-2); color: var(--muted); display: grid; place-items: center; cursor: pointer; }
+.page-controls button:hover:not(:disabled) { color: var(--text); border-color: var(--faint); }
+.page-controls button:disabled { opacity: .35; cursor: default; }
+.movie-grid { padding: 16px; display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 12px; }
+.movie-card { min-width: 0; height: 190px; border: 1px solid var(--border-soft); border-radius: 8px; background: var(--panel-2); overflow: hidden; display: grid; grid-template-columns: 126px minmax(0, 1fr); }
+.movie-card:hover { border-color: var(--faint); background: var(--panel-hover); }
+.movie-poster { width: 126px; height: 190px; background: var(--bg); color: var(--faint); display: grid; place-items: center; overflow: hidden; }
+.movie-poster img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.movie-card-body { min-width: 0; padding: 14px; display: flex; flex-direction: column; }
+.movie-card-title { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
+.movie-card-title > div { min-width: 0; display: flex; flex-direction: column; }
+.movie-card-title strong, .movie-card-title span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.movie-card-title strong { font-size: 12px; }
+.movie-card-title span { margin-top: 4px; color: var(--faint); font-size: 8px; }
+.movie-card-title em { height: 24px; padding: 0 7px; border-radius: 6px; background: color-mix(in srgb, #efb955 12%, transparent); color: #efb955; display: inline-flex; align-items: center; gap: 4px; font: 500 10px "DM Mono", monospace; font-style: normal; white-space: nowrap; }
+.movie-meta { min-height: 20px; margin-top: 9px; display: flex; align-items: center; gap: 5px; overflow: hidden; }
+.movie-meta span { flex: 0 0 auto; padding: 3px 5px; border: 1px solid var(--border); border-radius: 5px; color: var(--muted); font-size: 8px; }
+.movie-card-body p { min-height: 0; margin: 8px 0; color: var(--muted); font-size: 9px; line-height: 1.55; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+.movie-links { margin-top: auto; display: flex; gap: 14px; }
+.movie-links a { color: var(--muted); text-decoration: none; font-size: 9px; display: inline-flex; align-items: center; gap: 4px; }
+.movie-links a:hover { color: var(--accent); }
+.movie-state { min-height: 330px; padding: 40px; color: var(--faint); display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
+.movie-state strong { margin-top: 13px; color: var(--text); font-size: 13px; }
+.movie-state small { max-width: 480px; margin-top: 6px; color: var(--muted); font-size: 10px; line-height: 1.6; }
+.movie-state .secondary-button { margin-top: 17px; }
+.movie-state.error > svg { color: var(--danger); }
+.movie-pagination { height: 60px; border-top: 1px solid var(--border); display: flex; align-items: center; justify-content: center; }
+
 .dialog-backdrop { position: fixed; inset: 0; z-index: 30; background: rgba(3, 5, 9, .68); backdrop-filter: blur(5px); display: grid; place-items: center; }
 .site-editor { width: 440px; border: 1px solid var(--border); border-radius: 12px; background: var(--panel); box-shadow: var(--shadow); padding: 20px; }
 .dialog-heading { display: flex; align-items: flex-start; justify-content: space-between; padding-bottom: 18px; border-bottom: 1px solid var(--border-soft); }

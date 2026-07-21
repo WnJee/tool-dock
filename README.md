@@ -14,6 +14,7 @@
 - `Command/Ctrl + K` 全局搜索
 - 外部站点刷新、全屏和新标签页打开
 - 每日签到网站清单、当日进度、筛选和本地提醒
+- TMDB 完整影片目录，支持片名、演员、导演、类型、年份、评分和排序筛选
 
 ## 本地运行
 
@@ -30,7 +31,7 @@ npm run dev
 src/
 ├── components/       通用布局、命令面板和工具输出组件
 ├── config/           工具与内嵌网站目录配置
-├── pages/            首页、工具页、签到页和内嵌站点页
+├── pages/            首页、工具页、签到页、影片库和内嵌站点页
 ├── App.tsx           全局状态与页面装配
 ├── storage.ts        本地存储读取
 └── utils.ts          编解码与格式转换
@@ -52,6 +53,8 @@ Cloudflare Pages 推荐配置：
 - Build command：`npm run build`
 - Output directory：`dist`
 - Node.js：22 或 24
+
+影片库还需要在 Cloudflare Pages 项目的设置中添加加密变量 `TMDB_READ_TOKEN`，值为 TMDB 账户 API 设置页提供的 Read Access Token。前端不会接触该 Token，所有 TMDB 请求都由 `functions/api/movies.ts` 转发。
 
 ## 部署到 Cloudflare Pages
 
@@ -75,6 +78,7 @@ CLOUDFLARE_PAGES_PROJECT=my-project CLOUDFLARE_PAGES_BRANCH=preview npm run depl
 
 ## 数据与隐私
 
-- 工具输入不会上传到服务器。
+- 编解码和格式化工具的输入不会上传到服务器。
+- 影片搜索条件会发送到本站的 Pages Function，并用于查询 TMDB；不保存搜索记录。
 - 主题、收藏、最近使用和当前页面保存在浏览器 `localStorage`。
 - 外部网站区域会直接连接对应第三方站点，并受对方隐私政策和 iframe 策略约束。

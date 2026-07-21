@@ -31,12 +31,13 @@ export const SITES: SiteDefinition[] = [
 export function getViewTitle(view: ActiveView): string {
   if (view.type === 'home') return '工作台'
   if (view.type === 'checkin') return '每日签到'
+  if (view.type === 'movies') return '影片库'
   if (view.type === 'tool') return TOOLS.find((tool) => tool.id === view.id)?.name ?? '工具'
   return SITES.find((site) => site.id === view.id)?.name ?? '网站'
 }
 
 export function getActiveKey(view: ActiveView): string {
-  if (view.type === 'home' || view.type === 'checkin') return view.type
+  if (view.type === 'home' || view.type === 'checkin' || view.type === 'movies') return view.type
   return `${view.type}:${view.id}`
 }
 

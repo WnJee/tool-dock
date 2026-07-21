@@ -1,4 +1,4 @@
-import { CalendarCheck2, Home, PanelLeftClose, PanelLeftOpen, Search, ShieldCheck, Sparkles, Star } from 'lucide-react'
+import { CalendarCheck2, Film, Home, PanelLeftClose, PanelLeftOpen, Search, ShieldCheck, Sparkles, Star } from 'lucide-react'
 import { getActiveKey, SITES, TOOLS } from '../../config/catalog'
 import type { ActiveView } from '../../types'
 
@@ -32,6 +32,7 @@ export default function Sidebar({ active, collapsed, favorites, onCollapse, onNa
         <NavItem label="首页" icon={Home} active={activeKey === 'home'} collapsed={collapsed} onClick={() => onNavigate({ type: 'home' })} />
         {!collapsed && <div className="nav-label">日常</div>}
         <NavItem label="每日签到" icon={CalendarCheck2} active={activeKey === 'checkin'} collapsed={collapsed} onClick={() => onNavigate({ type: 'checkin' })} />
+        <NavItem label="影片库" icon={Film} active={activeKey === 'movies'} collapsed={collapsed} onClick={() => onNavigate({ type: 'movies' })} />
         {!collapsed && <div className="nav-label">常用工具</div>}
         {TOOLS.map((tool) => <NavItem key={tool.id} label={tool.name} icon={tool.icon} active={activeKey === `tool:${tool.id}`} collapsed={collapsed} favorite={favorites.includes(`tool:${tool.id}`)} onClick={() => onNavigate({ type: 'tool', id: tool.id })} />)}
         {!collapsed && <div className="nav-label site-label">常用网站</div>}
@@ -42,9 +43,9 @@ export default function Sidebar({ active, collapsed, favorites, onCollapse, onNa
           </button>
         ))}
       </nav>
-      <div className="privacy-note" title="所有工具均在本地浏览器运行">
+      <div className="privacy-note" title="编码与格式化工具在本地浏览器运行">
         <ShieldCheck size={17} />
-        {!collapsed && <div><strong>本地处理</strong><span>内容不会上传</span></div>}
+        {!collapsed && <div><strong>隐私优先</strong><span>工具内容本地处理</span></div>}
       </div>
     </aside>
   )

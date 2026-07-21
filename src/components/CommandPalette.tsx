@@ -1,5 +1,5 @@
 import { useMemo, type RefObject } from 'react'
-import { CalendarCheck2, ExternalLink, Search, X } from 'lucide-react'
+import { CalendarCheck2, ExternalLink, Film, Search, X } from 'lucide-react'
 import { SITES, TOOLS } from '../config/catalog'
 import type { ActiveView } from '../types'
 
@@ -16,6 +16,7 @@ export default function CommandPalette({ query, searchRef, onQuery, onClose, onN
     const keyword = query.trim().toLowerCase()
     const items = [
       { key: 'checkin', name: '每日签到', description: '记录并提醒每天需要签到的网站', label: '日常', icon: CalendarCheck2, view: { type: 'checkin' } as ActiveView, keywords: '每日签到 签到 提醒 网站' },
+      { key: 'movies', name: '影片库', description: '搜索和筛选 TMDB 完整电影目录', label: '日常', icon: Film, view: { type: 'movies' } as ActiveView, keywords: '影片库 电影 豆瓣 TMDB 演员 导演 评分' },
       ...TOOLS.map((tool) => ({ key: `tool:${tool.id}`, name: tool.name, description: tool.description, label: '工具', icon: tool.icon, view: { type: 'tool', id: tool.id } as ActiveView, keywords: `${tool.name} ${tool.description}` })),
       ...SITES.map((site) => ({ key: `site:${site.id}`, name: site.name, description: site.description, label: '网站', icon: ExternalLink, view: { type: 'site', id: site.id } as ActiveView, keywords: `${site.name} ${site.description} ${site.url}` })),
     ]
@@ -31,7 +32,7 @@ export default function CommandPalette({ query, searchRef, onQuery, onClose, onN
           {results.map((item) => { const Icon = item.icon; return <button key={item.key} onClick={() => onNavigate(item.view)}><span className="result-icon"><Icon size={18} /></span><span><strong>{item.name}</strong><small>{item.description}</small></span><em>{item.label}</em></button> })}
           {results.length === 0 && <div className="empty-state">没有找到匹配内容</div>}
         </div>
-        <div className="palette-footer"><span><kbd>ESC</kbd> 关闭</span><span>所有工具均在本地运行</span></div>
+        <div className="palette-footer"><span><kbd>ESC</kbd> 关闭</span><span>编码与格式化工具在本地运行</span></div>
       </div>
     </div>
   )

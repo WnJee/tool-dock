@@ -6,6 +6,7 @@ import { SITES, TOOLS } from './config/catalog'
 import CheckinPage from './pages/CheckinPage'
 import DashboardPage from './pages/DashboardPage'
 import EmbeddedSitePage from './pages/EmbeddedSitePage'
+import MovieLibraryPage from './pages/MovieLibraryPage'
 import ToolPage from './pages/ToolPage'
 import { getStoredValue } from './storage'
 import type { ActiveView } from './types'
@@ -71,6 +72,7 @@ function App() {
   function renderActivePage() {
     if (active.type === 'home') return <DashboardPage favorites={favorites} recent={recent} onNavigate={navigate} onFavorite={toggleFavorite} />
     if (active.type === 'checkin') return <CheckinPage />
+    if (active.type === 'movies') return <MovieLibraryPage />
     if (active.type === 'tool') {
       const tool = TOOLS.find((item) => item.id === active.id)
       return tool ? <ToolPage key={tool.id} tool={tool} favorite={favorites.includes(`tool:${tool.id}`)} onFavorite={() => toggleFavorite(`tool:${tool.id}`)} /> : null

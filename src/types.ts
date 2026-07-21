@@ -23,5 +23,6 @@ export interface SiteDefinition {
 export type ActiveView =
   | { type: 'home' }
   | { type: 'checkin' }
+  | { type: 'movies' }
   | { type: 'tool'; id: ToolId }
   | { type: 'site'; id: string }
