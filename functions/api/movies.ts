@@ -38,6 +38,7 @@ export async function onRequestGet({ request, env }: Context): Promise<Response>
   const query = input.get('query')?.trim().slice(0, 100) ?? ''
   const person = input.get('person')?.trim().slice(0, 100) ?? ''
   const genre = input.get('genre') ?? ''
+  const region = /^[A-Z]{2}$/.test(input.get('region') ?? '') ? input.get('region')! : ''
   const yearFrom = clampNumber(input.get('yearFrom'), 1888, 2100)
   const yearTo = clampNumber(input.get('yearTo'), 1888, 2100)
   const rating = clampNumber(input.get('rating'), 0, 10)
@@ -58,11 +59,12 @@ export async function onRequestGet({ request, env }: Context): Promise<Response>
 
     const useTitleSearch = Boolean(query)
     const params: Record<string, string | number> = useTitleSearch
-      ? { query, language: 'zh-CN', include_adult: 'false', page }
+      ? { query, language: 'zh-CN', include_adult: 'false', page, ...(region ? { region } : {}) }
       : {
           language: 'zh-CN', include_adult: 'false', include_video: 'false', page, sort_by: sort,
           ...(personId ? { with_people: personId } : {}),
           ...(genre ? { with_genres: genre } : {}),
+          ...(region ? { with_origin_country: region } : {}),
           ...(yearFrom ? { 'primary_release_date.gte': `${yearFrom}-01-01` } : {}),
           ...(yearTo ? { 'primary_release_date.lte': `${yearTo}-12-31` } : {}),
           ...(rating ? { 'vote_average.gte': rating, 'vote_count.gte': 20 } : sort === 'vote_average.desc' ? { 'vote_count.gte': 100 } : {}),

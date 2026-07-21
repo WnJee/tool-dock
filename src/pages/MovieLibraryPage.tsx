@@ -1,13 +1,14 @@
 import { useEffect, useRef, useState } from 'react'
 import { ChevronDown, ExternalLink, Film, RotateCcw, Search, SlidersHorizontal, Star } from 'lucide-react'
 import PageHeader from '../components/layout/PageHeader'
-import { getGenreNames, MOVIE_GENRES, searchMovies } from '../movie-api'
+import { getGenreNames, MOVIE_GENRES, MOVIE_REGIONS, searchMovies } from '../movie-api'
 import type { MovieFilters, MovieSearchResponse, MovieSummary } from '../movie-api'
 
 const DEFAULT_FILTERS: MovieFilters = {
   query: '',
   person: '',
   genre: '',
+  region: '',
   yearFrom: '',
   yearTo: '',
   rating: '',
@@ -93,12 +94,13 @@ function MovieLibraryPage() {
       <form className="movie-filters" onSubmit={submit}>
         <label className="movie-query"><span>片名</span><div><Search size={15} /><input value={filters.query} onChange={(event) => setFilters({ ...filters, query: event.target.value })} placeholder="中文名、原名或关键词" /></div></label>
         <label><span>演员 / 导演</span><input value={filters.person} onChange={(event) => setFilters({ ...filters, person: event.target.value })} placeholder="例如：梁朝伟" /></label>
+        <label><span>排序</span><select value={filters.sort} onChange={(event) => setFilters({ ...filters, sort: event.target.value })}><option value="popularity.desc">热度从高到低</option><option value="vote_average.desc">评分从高到低</option><option value="primary_release_date.desc">上映时间从新到旧</option><option value="primary_release_date.asc">上映时间从旧到新</option></select></label>
         <div className="movie-filter-actions"><button type="button" className="secondary-button" onClick={() => setDetailsOpen((open) => !open)}><SlidersHorizontal size={15} /> 详细搜索 <ChevronDown size={14} className={detailsOpen ? 'rotate-180' : ''} /></button><button type="button" className="secondary-button" onClick={reset} title="重置筛选"><RotateCcw size={15} /> 重置</button><button type="submit" className="primary-button"><Search size={15} /> 搜索</button></div>
         {detailsOpen && <div className="movie-details">
           <label><span>类型</span><select value={filters.genre} onChange={(event) => setFilters({ ...filters, genre: event.target.value })}><option value="">全部类型</option>{MOVIE_GENRES.map((genre) => <option key={genre.id} value={genre.id}>{genre.name}</option>)}</select></label>
+          <label><span>地区</span><select value={filters.region} onChange={(event) => setFilters({ ...filters, region: event.target.value })}><option value="">全部地区</option>{MOVIE_REGIONS.map((region) => <option key={region.code} value={region.code}>{region.name}</option>)}</select></label>
           <label><span>年份范围</span><div className="year-range"><input type="number" min="1888" max="2100" value={filters.yearFrom} onChange={(event) => setFilters({ ...filters, yearFrom: event.target.value })} placeholder="起始" /><em>至</em><input type="number" min="1888" max="2100" value={filters.yearTo} onChange={(event) => setFilters({ ...filters, yearTo: event.target.value })} placeholder="结束" /></div></label>
           <label><span>最低评分</span><select value={filters.rating} onChange={(event) => setFilters({ ...filters, rating: event.target.value })}><option value="">不限</option><option value="6">6.0</option><option value="7">7.0</option><option value="8">8.0</option><option value="9">9.0</option></select></label>
-          <label><span>排序</span><select value={filters.sort} onChange={(event) => setFilters({ ...filters, sort: event.target.value })}><option value="popularity.desc">热度从高到低</option><option value="vote_average.desc">评分从高到低</option><option value="primary_release_date.desc">上映时间从新到旧</option><option value="primary_release_date.asc">上映时间从旧到新</option></select></label>
         </div>}
       </form>
 

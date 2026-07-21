@@ -19,10 +19,24 @@ export const MOVIE_GENRES = [
   { id: 37, name: '西部' },
 ] as const
 
+export const MOVIE_REGIONS = [
+  { code: 'CN', name: '中国大陆' },
+  { code: 'HK', name: '中国香港' },
+  { code: 'TW', name: '中国台湾' },
+  { code: 'JP', name: '日本' },
+  { code: 'KR', name: '韩国' },
+  { code: 'US', name: '美国' },
+  { code: 'GB', name: '英国' },
+  { code: 'FR', name: '法国' },
+  { code: 'DE', name: '德国' },
+  { code: 'IN', name: '印度' },
+] as const
+
 export interface MovieFilters {
   query: string
   person: string
   genre: string
+  region: string
   yearFrom: string
   yearTo: string
   rating: string
@@ -55,6 +69,7 @@ export async function searchMovies(filters: MovieFilters, page: number, signal?:
     query: filters.query.trim(),
     person: filters.person.trim(),
     genre: filters.genre,
+    region: filters.region,
     yearFrom: filters.yearFrom,
     yearTo: filters.yearTo,
     rating: filters.rating,
@@ -70,4 +85,3 @@ export function getGenreNames(ids: number[]): string[] {
   const names = new Map<number, string>(MOVIE_GENRES.map((genre) => [genre.id, genre.name]))
   return ids.map((id) => names.get(id)).filter((name): name is string => Boolean(name))
 }
-

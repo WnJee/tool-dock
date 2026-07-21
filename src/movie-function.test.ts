@@ -30,7 +30,7 @@ describe('movie Pages Function', () => {
     vi.stubGlobal('fetch', fetchMock)
 
     const response = await onRequestGet({
-      request: new Request('https://example.com/api/movies?genre=18&yearFrom=1990&rating=8&sort=vote_average.desc'),
+      request: new Request('https://example.com/api/movies?genre=18&region=HK&yearFrom=1990&rating=8&sort=vote_average.desc'),
       env: { TMDB_READ_TOKEN: 'token' },
     })
     const body = await response.json() as { totalResults: number; results: Array<{ title: string; rating: number }> }
@@ -42,6 +42,7 @@ describe('movie Pages Function', () => {
     const [url, options] = fetchMock.mock.calls[0] as [URL, { headers: { Authorization: string } }]
     expect(url.pathname).toBe('/3/discover/movie')
     expect(url.searchParams.get('with_genres')).toBe('18')
+    expect(url.searchParams.get('with_origin_country')).toBe('HK')
     expect(url.searchParams.get('vote_average.gte')).toBe('8')
     expect(options.headers.Authorization).toBe('Bearer token')
   })
