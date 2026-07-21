@@ -185,7 +185,10 @@ kbd { border: 1px solid var(--border); border-bottom-color: var(--faint); backgr
 
 .primary-button { min-height: 36px; border: 1px solid color-mix(in srgb, var(--accent) 65%, var(--border)); background: var(--accent); color: #fff; border-radius: 8px; padding: 0 14px; display: inline-flex; align-items: center; justify-content: center; gap: 7px; font-size: 11px; font-weight: 600; cursor: pointer; }
 .primary-button:hover { filter: brightness(1.08); }
+.secondary-button { min-height: 36px; border: 1px solid var(--border); background: var(--panel); color: var(--muted); border-radius: 8px; padding: 0 12px; display: inline-flex; align-items: center; justify-content: center; gap: 6px; font-size: 11px; cursor: pointer; }
+.secondary-button:hover { color: var(--text); border-color: var(--faint); background: var(--panel-hover); }
 .checkin-page { max-width: 1320px; }
+.checkin-header-actions { display: flex; align-items: center; gap: 8px; }
 .checkin-summary { min-height: 150px; border: 1px solid var(--border); border-radius: 12px; background: var(--panel); padding: 24px 28px; display: grid; grid-template-columns: 220px minmax(280px, 1fr) 64px; align-items: center; gap: 42px; }
 .summary-count { display: flex; flex-direction: column; }
 .summary-count > span, .progress-meta span { color: var(--muted); font-size: 10px; }
