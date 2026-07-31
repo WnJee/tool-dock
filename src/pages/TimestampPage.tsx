@@ -70,7 +70,6 @@ export default function TimestampPage({ tool, favorite, onFavorite }: TimestampP
         {result.errorSource === 'operation' && <span className="timestamp-calculator-error">{result.error}</span>}
       </section>
       <section className="timestamp-results-panel">
-        <header><div><strong>{Number(amount) ? '运算结果' : '转换结果'}</strong><span>{result.values.length ? `${result.values.length} 种格式` : '等待有效输入'}</span></div></header>
         <div className="timestamp-value-list">
           {result.values.map((item) => <div className="timestamp-value-row" key={item.id}><span>{item.label}</span><code>{item.value}</code><button className="icon-button subtle" onClick={() => copyValue(item.id, item.value)} title={`复制${item.label}`}>{copied === item.id ? <Check size={15} /> : <Copy size={15} />}</button></div>)}
           {!result.values.length && <div className="timestamp-empty"><Clock3 size={25} /><span>输入有效时间后显示全部格式</span></div>}

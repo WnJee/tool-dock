@@ -9,6 +9,7 @@ import DashboardPage from './pages/DashboardPage'
 import EmbeddedSitePage from './pages/EmbeddedSitePage'
 import FormatterPage from './pages/FormatterPage'
 import MovieLibraryPage from './pages/MovieLibraryPage'
+import RandomDataPage from './pages/RandomDataPage'
 import TimestampPage from './pages/TimestampPage'
 import { getStoredValue } from './storage'
 import type { ActiveView } from './types'
@@ -81,7 +82,8 @@ function App() {
       if (!tool) return null
       const props = { tool, favorite: favorites.includes(`tool:${tool.id}`), onFavorite: () => toggleFavorite(`tool:${tool.id}`) }
       if (tool.id === 'crypto') return <CryptoPage key={tool.id} {...props} />
-      return tool.id === 'json' ? <FormatterPage key={tool.id} {...props} /> : <TimestampPage key={tool.id} {...props} />
+      if (tool.id === 'json') return <FormatterPage key={tool.id} {...props} />
+      return tool.id === 'random' ? <RandomDataPage key={tool.id} {...props} /> : <TimestampPage key={tool.id} {...props} />
     }
     const site = SITES.find((item) => item.id === active.id)
     return site ? <EmbeddedSitePage key={site.id} site={site} favorite={favorites.includes(`site:${site.id}`)} onFavorite={() => toggleFavorite(`site:${site.id}`)} /> : null

@@ -1,6 +1,6 @@
 import type { LucideIcon } from 'lucide-react'
 
-export type ToolId = 'crypto' | 'json' | 'timestamp'
+export type ToolId = 'crypto' | 'json' | 'timestamp' | 'random'
 
 export interface ToolDefinition {
   id: ToolId
