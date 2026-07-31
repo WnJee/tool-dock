@@ -1,12 +1,10 @@
-import { Braces, Clock3, Code2, Link2, Zap } from 'lucide-react'
+import { Braces, Clock3, KeyRound } from 'lucide-react'
 import type { ActiveView, SiteDefinition, ToolDefinition } from '../types'
 
 export const TOOLS: ToolDefinition[] = [
-  { id: 'base64', name: 'Base64', description: 'Unicode 安全的编码与解码', icon: Code2, color: '#6f8cff', placeholder: '输入任意文本，支持中文和 Emoji…' },
-  { id: 'base58', name: 'Base58', description: '无歧义字符的编码与解码', icon: Zap, color: '#eea853', placeholder: '输入要编码或解码的内容…' },
-  { id: 'json', name: 'JSON 格式化', description: '美化、压缩与语法校验', icon: Braces, color: '#55caa3', placeholder: '{"name":"ToolDock","ready":true}' },
-  { id: 'url', name: 'URL 编解码', description: '处理查询参数与特殊字符', icon: Link2, color: '#df7dab', placeholder: '输入 URL 或待编码文本…' },
-  { id: 'timestamp', name: '时间戳转换', description: '秒、毫秒和日期互转', icon: Clock3, color: '#8b7bea', placeholder: '例如：1721203200、2026-07-17 12:00:00' },
+  { id: 'crypto', name: '编码与加密', description: 'Base 编码、哈希摘要与 AES 加解密', icon: KeyRound, color: '#6f8cff', placeholder: '输入任意文本，支持中文和 Emoji…' },
+  { id: 'json', name: '代码格式化', description: 'JSON、XML、HTML 与 JavaScript', icon: Braces, color: '#55caa3', placeholder: '{"name":"ToolDock","ready":true}' },
+  { id: 'timestamp', name: '时间戳转换', description: '秒、毫秒、微秒与日期互转', icon: Clock3, color: '#8b7bea', placeholder: '例如：1721203200、2026-07-17 12:00:00' },
 ]
 
 export const SITES: SiteDefinition[] = [
@@ -32,12 +30,13 @@ export function getViewTitle(view: ActiveView): string {
   if (view.type === 'home') return '工作台'
   if (view.type === 'checkin') return '每日签到'
   if (view.type === 'movies') return '影片库'
+  if (view.type === 'tv') return '电视剧'
   if (view.type === 'tool') return TOOLS.find((tool) => tool.id === view.id)?.name ?? '工具'
   return SITES.find((site) => site.id === view.id)?.name ?? '网站'
 }
 
 export function getActiveKey(view: ActiveView): string {
-  if (view.type === 'home' || view.type === 'checkin' || view.type === 'movies') return view.type
+  if (view.type === 'home' || view.type === 'checkin' || view.type === 'movies' || view.type === 'tv') return view.type
   return `${view.type}:${view.id}`
 }
 

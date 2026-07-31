@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { decodeBase58, decodeBase64, encodeBase58, encodeBase64, formatJson, formatTimestamp, minifyJson } from './utils'
+import { decodeBase58, decodeBase64, encodeBase58, encodeBase64, formatJson, minifyJson } from './utils'
 
 describe('text codecs', () => {
   it('round-trips unicode through Base64', () => {
@@ -22,16 +22,5 @@ describe('JSON transforms', () => {
   it('formats and minifies JSON', () => {
     expect(formatJson('{"ok":true,"items":[1,2]}')).toContain('\n  "ok": true')
     expect(minifyJson('{\n  "ok": true\n}')).toBe('{"ok":true}')
-  })
-})
-
-describe('timestamp transforms', () => {
-  it('includes aligned labels and CTS output', () => {
-    const result = formatTimestamp('1721203200')
-    expect(result).toContain('本地时间\t')
-    expect(result).toContain('ISO 时间\t2024-07-17T08:00:00.000Z')
-    expect(result).toMatch(/CTS 时间\t\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2} GMT[+-]\d{2}:\d{2}/)
-    expect(result).toContain('秒级时间戳\t1721203200')
-    expect(result).toContain('毫秒时间戳\t1721203200000')
   })
 })

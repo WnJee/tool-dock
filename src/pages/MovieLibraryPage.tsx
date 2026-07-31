@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
-import { ChevronDown, ExternalLink, Film, RotateCcw, Search, SlidersHorizontal, Star } from 'lucide-react'
+import { ChevronDown, ExternalLink, Film, RotateCcw, Search, SlidersHorizontal, Star, Tv } from 'lucide-react'
 import PageHeader from '../components/layout/PageHeader'
-import { getGenreNames, MOVIE_GENRES, MOVIE_REGIONS, searchMovies } from '../movie-api'
+import { getGenreNames, MOVIE_GENRES, MOVIE_REGIONS, searchMovies, searchTvShows, TV_GENRES } from '../movie-api'
 import type { MovieFilters, MovieSearchResponse, MovieSummary } from '../movie-api'
 
 const DEFAULT_FILTERS: MovieFilters = {
@@ -33,7 +33,13 @@ const RATINGS = [
   { label: '9.0+', value: '9' },
 ] as const
 
-function MovieLibraryPage() {
+function MovieLibraryPage({ mediaType = 'movie' }: { mediaType?: 'movie' | 'tv' }) {
+  const isTv = mediaType === 'tv'
+  const copy = isTv
+    ? { title: '电视剧', item: '部剧集', catalog: '电视剧目录', loading: '正在加载电视剧', unavailable: '电视剧目录暂时不可用', empty: '没有找到匹配剧集', fallbackError: '电视剧数据加载失败', queryLabel: '剧名', queryPlaceholder: '中文剧名、原名或关键词' }
+    : { title: '影片库', item: '部影片', catalog: '影片目录', loading: '正在加载影片', unavailable: '影片库暂时不可用', empty: '没有找到匹配影片', fallbackError: '影片数据加载失败', queryLabel: '片名', queryPlaceholder: '中文名、原名或关键词' }
+  const Icon = isTv ? Tv : Film
+  const genres = isTv ? TV_GENRES : MOVIE_GENRES
   const [filters, setFilters] = useState(DEFAULT_FILTERS)
   const [appliedFilters, setAppliedFilters] = useState(DEFAULT_FILTERS)
   const [data, setData] = useState<MovieSearchResponse | null>(null)
@@ -56,11 +62,11 @@ function MovieLibraryPage() {
     else setLoading(true)
     setError('')
     try {
-      const next = await searchMovies(nextFilters, page, controller.signal)
+      const next = await (isTv ? searchTvShows : searchMovies)(nextFilters, page, controller.signal)
       setData((current) => append && current ? { ...next, results: [...current.results, ...next.results.filter((movie) => !current.results.some((item) => item.id === movie.id))] } : next)
     } catch (caught) {
       if (caught instanceof DOMException && caught.name === 'AbortError') return
-      setError(caught instanceof Error ? caught.message : '影片数据加载失败')
+      setError(caught instanceof Error ? caught.message : copy.fallbackError)
       if (!append) setData(null)
     } finally {
       if (requestRef.current === controller) {
@@ -107,15 +113,15 @@ function MovieLibraryPage() {
 
   return (
     <div className="content-page movie-page page-container">
-      <PageHeader icon={Film} title="影片库" description="TMDB 电影目录 · 中文信息、条件筛选与豆瓣搜索入口" color="#ef7185" />
+      <PageHeader icon={Icon} title={copy.title} description={`TMDB ${isTv ? '电视剧' : '电影'}目录 · 中文信息、条件筛选与豆瓣搜索入口`} color={isTv ? '#55caa3' : '#ef7185'} />
 
       <form className="movie-filters" onSubmit={submit}>
-        <label className="movie-query"><span>片名</span><div><Search size={15} /><input value={filters.query} onChange={(event) => setFilters({ ...filters, query: event.target.value })} placeholder="中文名、原名或关键词" /></div></label>
-        <label><span>演员 / 导演</span><input value={filters.person} onChange={(event) => setFilters({ ...filters, person: event.target.value })} placeholder="例如：梁朝伟" /></label>
-        <label><span>排序</span><select value={filters.sort} onChange={(event) => setFilters({ ...filters, sort: event.target.value })}><option value="popularity.desc">热度从高到低</option><option value="vote_average.desc">评分从高到低</option><option value="primary_release_date.desc">上映时间从新到旧</option><option value="primary_release_date.asc">上映时间从旧到新</option></select></label>
+        <label className="movie-query"><span>{copy.queryLabel}</span><div><Search size={15} /><input value={filters.query} onChange={(event) => setFilters({ ...filters, query: event.target.value })} placeholder={copy.queryPlaceholder} /></div></label>
+        <label><span>演员 / 导演</span><input value={filters.person} onChange={(event) => setFilters({ ...filters, person: event.target.value })} placeholder="例如：周星驰" /></label>
+        <label><span>排序</span><select value={filters.sort} onChange={(event) => setFilters({ ...filters, sort: event.target.value })}><option value="popularity.desc">热度从高到低</option><option value="vote_average.desc">评分从高到低</option><option value="primary_release_date.desc">{isTv ? '首播' : '上映'}时间从新到旧</option><option value="primary_release_date.asc">{isTv ? '首播' : '上映'}时间从旧到新</option></select></label>
         <div className="movie-filter-actions"><button type="button" className="secondary-button" onClick={() => setDetailsOpen((open) => !open)}><SlidersHorizontal size={15} /> 详细搜索 <ChevronDown size={14} className={detailsOpen ? 'rotate-180' : ''} /></button><button type="button" className="secondary-button" onClick={reset} title="重置筛选"><RotateCcw size={15} /> 重置</button><button type="submit" className="primary-button"><Search size={15} /> 搜索</button></div>
         {detailsOpen && <div className="movie-details">
-          <FilterRow label="类型"><FilterChip active={!filters.genre} onClick={() => setFilters({ ...filters, genre: '' })}>全部类型</FilterChip>{MOVIE_GENRES.map((genre) => <FilterChip key={genre.id} active={filters.genre === String(genre.id)} onClick={() => setFilters({ ...filters, genre: String(genre.id) })}>{genre.name}</FilterChip>)}</FilterRow>
+          <FilterRow label="类型"><FilterChip active={!filters.genre} onClick={() => setFilters({ ...filters, genre: '' })}>全部类型</FilterChip>{genres.map((genre) => <FilterChip key={genre.id} active={filters.genre === String(genre.id)} onClick={() => setFilters({ ...filters, genre: String(genre.id) })}>{genre.name}</FilterChip>)}</FilterRow>
           <FilterRow label="地区"><FilterChip active={!filters.region} onClick={() => setFilters({ ...filters, region: '' })}>全部地区</FilterChip>{MOVIE_REGIONS.map((region) => <FilterChip key={region.code} active={filters.region === region.code} onClick={() => setFilters({ ...filters, region: region.code })}>{region.name}</FilterChip>)}</FilterRow>
           <FilterRow label="年份范围">{YEAR_RANGES.map((range) => <FilterChip key={range.label} active={filters.yearFrom === range.from && filters.yearTo === range.to} onClick={() => setFilters({ ...filters, yearFrom: range.from, yearTo: range.to })}>{range.label}</FilterChip>)}<div className="year-range"><input aria-label="起始年份" type="number" min="1888" max="2100" value={filters.yearFrom} onChange={(event) => setFilters({ ...filters, yearFrom: event.target.value })} placeholder="起始年份" /><em>至</em><input aria-label="结束年份" type="number" min="1888" max="2100" value={filters.yearTo} onChange={(event) => setFilters({ ...filters, yearTo: event.target.value })} placeholder="结束年份" /></div></FilterRow>
           <FilterRow label="最低评分">{RATINGS.map((rating) => <FilterChip key={rating.label} active={filters.rating === rating.value} onClick={() => setFilters({ ...filters, rating: rating.value })}>{rating.label}</FilterChip>)}</FilterRow>
@@ -124,13 +130,13 @@ function MovieLibraryPage() {
 
       <section className="movie-results">
         <div className="movie-results-heading">
-          <div><strong>{data ? `找到 ${data.totalResults.toLocaleString('zh-CN')} 部影片` : '影片目录'}</strong><span>{data?.matchedPerson ? `人物匹配：${data.matchedPerson}` : '评分来自 TMDB，豆瓣入口用于继续查看中文社区信息'}</span></div>
+          <div><strong>{data ? data.filteredLocally ? `已加载 ${data.results.length.toLocaleString('zh-CN')} 个符合条件的结果` : `找到 ${data.totalResults.toLocaleString('zh-CN')} ${copy.item}` : copy.catalog}</strong><span>{data?.matchedPerson ? `人物匹配：${data.matchedPerson}` : '评分来自 TMDB，豆瓣入口用于继续查看中文社区信息'}</span></div>
         </div>
 
-        {loading && <div className="movie-state"><span className="spinner" /><strong>正在加载影片</strong><small>从 TMDB 获取最新目录</small></div>}
-        {!loading && error && <div className="movie-state error"><Film size={34} /><strong>影片库暂时不可用</strong><small>{error}</small><button className="secondary-button" onClick={() => loadMovies(appliedFilters)}>重新加载</button></div>}
-        {!loading && !error && data?.results.length === 0 && <div className="movie-state"><Film size={34} /><strong>没有找到匹配影片</strong><small>可以减少筛选条件或尝试其他关键词</small></div>}
-        {!loading && !error && data && data.results.length > 0 && <div className="movie-grid">{data.results.map((movie) => <MovieCard key={movie.id} movie={movie} />)}</div>}
+        {loading && <div className="movie-state"><span className="spinner" /><strong>{copy.loading}</strong><small>从 TMDB 获取最新目录</small></div>}
+        {!loading && error && <div className="movie-state error"><Icon size={34} /><strong>{copy.unavailable}</strong><small>{error}</small><button className="secondary-button" onClick={() => loadMovies(appliedFilters)}>重新加载</button></div>}
+        {!loading && !error && data?.results.length === 0 && <div className="movie-state"><Icon size={34} /><strong>{copy.empty}</strong><small>可以减少筛选条件或尝试其他关键词</small></div>}
+        {!loading && !error && data && data.results.length > 0 && <div className="movie-grid">{data.results.map((movie) => <MovieCard key={movie.id} movie={movie} mediaType={mediaType} />)}</div>}
         {!loading && !error && data && data.results.length > 0 && <div className="movie-load-more">{loadingMore ? <><span className="spinner" />正在加载更多</> : data.page >= Math.min(data.totalPages, 500) ? '已加载全部结果' : <button className="secondary-button" onClick={() => loadMovies(appliedFilters, data.page + 1, true)}>继续加载</button>}</div>}
       </section>
     </div>
@@ -145,14 +151,15 @@ function FilterChip({ active, children, onClick }: { active: boolean; children: 
   return <button type="button" className={`movie-filter-chip ${active ? 'active' : ''}`} onClick={onClick}>{children}</button>
 }
 
-function MovieCard({ movie }: { movie: MovieSummary }) {
-  const genres = getGenreNames(movie.genreIds).slice(0, 3)
+function MovieCard({ movie, mediaType }: { movie: MovieSummary; mediaType: 'movie' | 'tv' }) {
+  const isTv = mediaType === 'tv'
+  const genres = getGenreNames(movie.genreIds, mediaType).slice(0, 3)
   const year = movie.releaseDate.slice(0, 4) || '年份未知'
-  const tmdbUrl = `https://www.themoviedb.org/movie/${movie.id}?language=zh-CN`
+  const tmdbUrl = `https://www.themoviedb.org/${mediaType}/${movie.id}?language=zh-CN`
   const doubanUrl = `https://search.douban.com/movie/subject_search?search_text=${encodeURIComponent(`${movie.title} ${year}`)}`
   return (
     <article className="movie-card">
-      <div className="movie-poster">{movie.posterPath ? <img src={`https://image.tmdb.org/t/p/w342${movie.posterPath}`} alt={`${movie.title} 海报`} loading="lazy" /> : <Film size={34} />}</div>
+      <div className="movie-poster">{movie.posterPath ? <img src={`https://image.tmdb.org/t/p/w342${movie.posterPath}`} alt={`${movie.title} 海报`} loading="lazy" /> : isTv ? <Tv size={34} /> : <Film size={34} />}</div>
       <div className="movie-card-body">
         <div className="movie-card-title"><div><strong title={movie.title}>{movie.title}</strong>{movie.originalTitle !== movie.title && <span title={movie.originalTitle}>{movie.originalTitle}</span>}</div><em><Star size={12} fill="currentColor" /> {movie.rating ? movie.rating.toFixed(1) : '—'}</em></div>
         <div className="movie-meta"><span>{year}</span>{genres.map((genre) => <span key={genre}>{genre}</span>)}<span>{movie.voteCount.toLocaleString('zh-CN')} 人评分</span></div>

@@ -61,29 +61,3 @@ export function formatJson(value: string): string {
 export function minifyJson(value: string): string {
   return JSON.stringify(JSON.parse(value))
 }
-
-export function formatTimestamp(value: string): string {
-  const raw = value.trim()
-  if (!raw) return ''
-  let date: Date
-  if (/^\d{10,13}$/.test(raw)) {
-    const numeric = Number(raw)
-    date = new Date(raw.length === 10 ? numeric * 1000 : numeric)
-  } else {
-    date = new Date(raw)
-  }
-  if (Number.isNaN(date.getTime())) throw new Error('无法识别这个时间，请输入 10/13 位时间戳或日期文本')
-  const pad = (num: number) => String(num).padStart(2, '0')
-  const localTime = `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())} ${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`
-  const offsetMinutes = -date.getTimezoneOffset()
-  const offsetSign = offsetMinutes >= 0 ? '+' : '-'
-  const offsetHours = pad(Math.floor(Math.abs(offsetMinutes) / 60))
-  const offsetRemainder = pad(Math.abs(offsetMinutes) % 60)
-  return [
-    `本地时间\t${localTime}`,
-    `ISO 时间\t${date.toISOString()}`,
-    `CTS 时间\t${localTime} GMT${offsetSign}${offsetHours}:${offsetRemainder}`,
-    `秒级时间戳\t${Math.floor(date.getTime() / 1000)}`,
-    `毫秒时间戳\t${date.getTime()}`,
-  ].join('\n')
-}

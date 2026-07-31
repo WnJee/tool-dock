@@ -1,6 +1,6 @@
 import type { LucideIcon } from 'lucide-react'
 
-export type ToolId = 'base64' | 'base58' | 'json' | 'url' | 'timestamp'
+export type ToolId = 'crypto' | 'json' | 'timestamp'
 
 export interface ToolDefinition {
   id: ToolId
@@ -24,5 +24,6 @@ export type ActiveView =
   | { type: 'home' }
   | { type: 'checkin' }
   | { type: 'movies' }
+  | { type: 'tv' }
   | { type: 'tool'; id: ToolId }
   | { type: 'site'; id: string }

@@ -4,10 +4,12 @@ import Sidebar from './components/layout/Sidebar'
 import TopBar from './components/layout/TopBar'
 import { SITES, TOOLS } from './config/catalog'
 import CheckinPage from './pages/CheckinPage'
+import CryptoPage from './pages/CryptoPage'
 import DashboardPage from './pages/DashboardPage'
 import EmbeddedSitePage from './pages/EmbeddedSitePage'
+import FormatterPage from './pages/FormatterPage'
 import MovieLibraryPage from './pages/MovieLibraryPage'
-import ToolPage from './pages/ToolPage'
+import TimestampPage from './pages/TimestampPage'
 import { getStoredValue } from './storage'
 import type { ActiveView } from './types'
 
@@ -16,7 +18,7 @@ function App() {
   const [query, setQuery] = useState('')
   const [searchOpen, setSearchOpen] = useState(false)
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
-  const [favorites, setFavorites] = useState<string[]>(() => getStoredValue('tooldock.favorites', ['tool:base64', 'tool:json', 'site:codex-radar']))
+  const [favorites, setFavorites] = useState<string[]>(() => getStoredValue('tooldock.favorites', ['tool:crypto', 'tool:json', 'site:codex-radar']))
   const [recent, setRecent] = useState<string[]>(() => getStoredValue('tooldock.recent', []))
   const [theme, setTheme] = useState<'dark' | 'light'>(() => getStoredValue('tooldock.theme', 'dark'))
   const searchRef = useRef<HTMLInputElement>(null)
@@ -72,10 +74,14 @@ function App() {
   function renderActivePage() {
     if (active.type === 'home') return <DashboardPage favorites={favorites} recent={recent} onNavigate={navigate} onFavorite={toggleFavorite} />
     if (active.type === 'checkin') return <CheckinPage />
-    if (active.type === 'movies') return <MovieLibraryPage />
+    if (active.type === 'movies') return <MovieLibraryPage key="movie" />
+    if (active.type === 'tv') return <MovieLibraryPage key="tv" mediaType="tv" />
     if (active.type === 'tool') {
       const tool = TOOLS.find((item) => item.id === active.id)
-      return tool ? <ToolPage key={tool.id} tool={tool} favorite={favorites.includes(`tool:${tool.id}`)} onFavorite={() => toggleFavorite(`tool:${tool.id}`)} /> : null
+      if (!tool) return null
+      const props = { tool, favorite: favorites.includes(`tool:${tool.id}`), onFavorite: () => toggleFavorite(`tool:${tool.id}`) }
+      if (tool.id === 'crypto') return <CryptoPage key={tool.id} {...props} />
+      return tool.id === 'json' ? <FormatterPage key={tool.id} {...props} /> : <TimestampPage key={tool.id} {...props} />
     }
     const site = SITES.find((item) => item.id === active.id)
     return site ? <EmbeddedSitePage key={site.id} site={site} favorite={favorites.includes(`site:${site.id}`)} onFavorite={() => toggleFavorite(`site:${site.id}`)} /> : null

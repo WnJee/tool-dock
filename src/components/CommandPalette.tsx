@@ -1,5 +1,5 @@
 import { useMemo, type RefObject } from 'react'
-import { CalendarCheck2, ExternalLink, Film, Search, X } from 'lucide-react'
+import { CalendarCheck2, ExternalLink, Film, Search, Tv, X } from 'lucide-react'
 import { SITES, TOOLS } from '../config/catalog'
 import type { ActiveView } from '../types'
 
@@ -17,7 +17,8 @@ export default function CommandPalette({ query, searchRef, onQuery, onClose, onN
     const items = [
       { key: 'checkin', name: '每日签到', description: '记录并提醒每天需要签到的网站', label: '日常', icon: CalendarCheck2, view: { type: 'checkin' } as ActiveView, keywords: '每日签到 签到 提醒 网站' },
       { key: 'movies', name: '影片库', description: '搜索和筛选 TMDB 完整电影目录', label: '日常', icon: Film, view: { type: 'movies' } as ActiveView, keywords: '影片库 电影 豆瓣 TMDB 演员 导演 评分' },
-      ...TOOLS.map((tool) => ({ key: `tool:${tool.id}`, name: tool.name, description: tool.description, label: '工具', icon: tool.icon, view: { type: 'tool', id: tool.id } as ActiveView, keywords: `${tool.name} ${tool.description}` })),
+      { key: 'tv', name: '电视剧', description: '搜索和筛选 TMDB 电视剧目录', label: '日常', icon: Tv, view: { type: 'tv' } as ActiveView, keywords: '电视剧 剧集 电视 豆瓣 TMDB 演员 导演 评分' },
+      ...TOOLS.map((tool) => ({ key: `tool:${tool.id}`, name: tool.name, description: tool.description, label: '工具', icon: tool.icon, view: { type: 'tool', id: tool.id } as ActiveView, keywords: `${tool.name} ${tool.description} ${tool.id === 'crypto' ? 'Base64 Base58 Base32 Hex MD5 SHA-1 SHA-256 SHA-512 AES 加密 解密 哈希' : ''} ${tool.id === 'json' ? 'JSON XML HTML JavaScript JS YAML Properties 格式化 压缩 转义 反转义 互转' : ''}` })),
       ...SITES.map((site) => ({ key: `site:${site.id}`, name: site.name, description: site.description, label: '网站', icon: ExternalLink, view: { type: 'site', id: site.id } as ActiveView, keywords: `${site.name} ${site.description} ${site.url}` })),
     ]
     return keyword ? items.filter((item) => item.keywords.toLowerCase().includes(keyword)) : items
@@ -26,7 +27,7 @@ export default function CommandPalette({ query, searchRef, onQuery, onClose, onN
   return (
     <div className="palette-backdrop" onMouseDown={onClose}>
       <div className="command-palette" onMouseDown={(event) => event.stopPropagation()}>
-        <div className="palette-input"><Search size={20} /><input ref={searchRef} value={query} onChange={(event) => onQuery(event.target.value)} placeholder="搜索 Base64、JSON、IP、Codex…" /><button onClick={onClose}><X size={17} /></button></div>
+        <div className="palette-input"><Search size={20} /><input ref={searchRef} value={query} onChange={(event) => onQuery(event.target.value)} placeholder="搜索 AES、Base64、JSON、IP…" /><button onClick={onClose}><X size={17} /></button></div>
         <div className="palette-results">
           <div className="palette-label">{query ? `搜索结果 · ${results.length}` : '全部内容'}</div>
           {results.map((item) => { const Icon = item.icon; return <button key={item.key} onClick={() => onNavigate(item.view)}><span className="result-icon"><Icon size={18} /></span><span><strong>{item.name}</strong><small>{item.description}</small></span><em>{item.label}</em></button> })}

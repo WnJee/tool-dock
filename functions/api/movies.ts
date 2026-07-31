@@ -18,6 +18,7 @@ interface TmdbMovie {
   vote_average?: number
   vote_count?: number
   genre_ids?: number[]
+  origin_country?: string[]
 }
 
 interface TmdbResponse {
@@ -82,6 +83,7 @@ export async function onRequestGet({ request, env }: Context): Promise<Response>
         const releaseYear = Number(movie.release_date?.slice(0, 4))
         return (!personMovieIds || personMovieIds.has(movie.id))
           && (!genre || movie.genre_ids?.includes(Number(genre)))
+          && (!region || movie.origin_country?.includes(region))
           && (!yearFrom || releaseYear >= yearFrom)
           && (!yearTo || releaseYear <= yearTo)
           && (!rating || (movie.vote_average ?? 0) >= rating)
@@ -92,7 +94,8 @@ export async function onRequestGet({ request, env }: Context): Promise<Response>
     return json({
       page: response.page,
       totalPages: Math.min(response.total_pages, 500),
-      totalResults: useTitleSearch && results.length !== response.results.length ? results.length : response.total_results,
+      totalResults: response.total_results,
+      filteredLocally: useTitleSearch && Boolean(personId || genre || region || yearFrom || yearTo || rating),
       matchedPerson,
       results: results.map((movie) => ({
         id: movie.id,

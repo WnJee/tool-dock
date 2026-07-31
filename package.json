@@ -12,12 +12,15 @@
   },
   "dependencies": {
     "@vitejs/plugin-react": "latest",
+    "js-yaml": "^5.2.2",
     "lucide-react": "latest",
-    "vite": "latest",
+    "prettier": "^3.9.6",
     "react": "latest",
-    "react-dom": "latest"
+    "react-dom": "latest",
+    "vite": "latest"
   },
   "devDependencies": {
+    "@types/js-yaml": "^4.0.9",
     "@types/react": "latest",
     "@types/react-dom": "latest",
     "typescript": "latest",
