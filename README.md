@@ -6,9 +6,10 @@
 
 ### 编码与加密
 
-- Base64、Base58、Base32、Hex 和 URL 编解码，支持中文与 Emoji
+- Base64、Base64URL、Base58、Base32、Hex 和 URL 编解码，支持中文与 Emoji
 - MD5、SHA-1、SHA-256 和 SHA-512 哈希摘要
-- AES-256-GCM 加解密，使用 PBKDF2 派生密钥，密文内含随机盐和 IV
+- AES-256-GCM、ChaCha20-Poly1305 与 SM4-CBC 加解密，使用 PBKDF2 派生密钥并校验密文完整性
+- 一键生成加密安全的 256 位随机密码
 
 ### 代码格式化
 
@@ -54,7 +55,7 @@ src/
 ├── components/         通用布局、命令面板和输出组件
 ├── config/             工具与内嵌网站目录
 ├── pages/              工作台、工具、签到、影视目录和内嵌站点页
-├── crypto-utils.ts     编解码、哈希与 AES-GCM
+├── crypto-utils.ts     编解码、哈希与对称加密
 ├── formatter-utils.ts  格式化与 YAML / Properties 转换
 ├── timestamp-utils.ts  时间识别、格式输出和时间运算
 ├── movie-api.ts        电影/电视剧前端 API 客户端
@@ -107,7 +108,7 @@ CLOUDFLARE_PAGES_PROJECT=my-project CLOUDFLARE_PAGES_BRANCH=preview npm run depl
 
 ## 数据与隐私
 
-- 编解码、哈希、AES、格式化和时间工具的输入不会上传到服务器。
+- 编解码、哈希、对称加密、格式化和时间工具的输入不会上传到服务器。
 - 电影和电视剧搜索条件会发送到本站的 Pages Function，并用于查询 TMDB；不保存搜索记录。
 - 主题、收藏、最近使用和当前页面保存在浏览器 `localStorage`。
 - 外部网站区域会直接连接对应第三方站点，并受对方隐私政策和 iframe 策略约束。

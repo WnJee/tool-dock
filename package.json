@@ -11,12 +11,14 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "@noble/ciphers": "^2.2.0",
     "@vitejs/plugin-react": "latest",
     "js-yaml": "^5.2.2",
     "lucide-react": "latest",
     "prettier": "^3.9.6",
     "react": "latest",
     "react-dom": "latest",
+    "sm-crypto": "^0.5.5",
     "vite": "latest"
   },
   "devDependencies": {

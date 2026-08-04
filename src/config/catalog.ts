@@ -2,7 +2,7 @@ import { Braces, Clock3, Dices, KeyRound } from 'lucide-react'
 import type { ActiveView, SiteDefinition, ToolDefinition } from '../types'
 
 export const TOOLS: ToolDefinition[] = [
-  { id: 'crypto', name: '编码与加密', description: 'Base 编码、哈希摘要与 AES 加解密', icon: KeyRound, color: '#6f8cff', placeholder: '输入任意文本，支持中文和 Emoji…' },
+  { id: 'crypto', name: '编码与加密', description: 'Base 编码、哈希摘要与对称加密', icon: KeyRound, color: '#6f8cff', placeholder: '输入任意文本，支持中文和 Emoji…' },
   { id: 'json', name: '代码格式化', description: 'JSON、XML、HTML 与 JavaScript', icon: Braces, color: '#55caa3', placeholder: '{"name":"ToolDock","ready":true}' },
   { id: 'timestamp', name: '时间戳转换', description: '秒、毫秒、微秒与日期互转', icon: Clock3, color: '#8b7bea', placeholder: '例如：1721203200、2026-07-17 12:00:00' },
   { id: 'random', name: '随机数据', description: '测试用户、地址、联系方式与密码', icon: Dices, color: '#eea853', placeholder: '' },
