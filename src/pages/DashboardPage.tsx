@@ -1,15 +1,16 @@
 import { Braces, Sparkles, Star } from 'lucide-react'
-import { resolveCatalogName, SITES, TOOLS } from '../config/catalog'
+import { resolveCatalogName, TOOLS } from '../config/catalog'
 import type { ActiveView, SiteDefinition, ToolDefinition, ToolId } from '../types'
 
 interface DashboardPageProps {
   favorites: string[]
   recent: string[]
+  sites: SiteDefinition[]
   onNavigate: (view: ActiveView) => void
   onFavorite: (key: string) => void
 }
 
-export default function DashboardPage({ favorites, recent, onNavigate, onFavorite }: DashboardPageProps) {
+export default function DashboardPage({ favorites, recent, sites, onNavigate, onFavorite }: DashboardPageProps) {
   function openKey(key: string) {
     const [type, id] = key.split(':')
     if (type === 'tool') onNavigate({ type: 'tool', id: id as ToolId })
@@ -18,7 +19,7 @@ export default function DashboardPage({ favorites, recent, onNavigate, onFavorit
 
   const favoriteItems = [
     ...TOOLS.map((item) => ({ key: `tool:${item.id}`, item, type: 'tool' as const })),
-    ...SITES.map((item) => ({ key: `site:${item.id}`, item, type: 'site' as const })),
+    ...sites.map((item) => ({ key: `site:${item.id}`, item, type: 'site' as const })),
   ].filter(({ key }) => favorites.includes(key))
 
   return (
@@ -42,7 +43,7 @@ export default function DashboardPage({ favorites, recent, onNavigate, onFavorit
         </section>
         <section className="section-block panel-block">
           <div className="section-heading"><div><h2>最近使用</h2><p>继续刚才的工作</p></div></div>
-          {recent.length === 0 ? <div className="empty-state">使用过的工具和网站会出现在这里</div> : <div className="recent-chips">{recent.map((key) => <button key={key} onClick={() => openKey(key)}>{resolveCatalogName(key)}</button>)}</div>}
+          {recent.length === 0 ? <div className="empty-state">使用过的工具和网站会出现在这里</div> : <div className="recent-chips">{recent.map((key) => <button key={key} onClick={() => openKey(key)}>{resolveCatalogName(key, sites)}</button>)}</div>}
         </section>
       </div>
     </div>

@@ -1,17 +1,19 @@
-import { CalendarCheck2, Film, Home, PanelLeftClose, PanelLeftOpen, Search, ShieldCheck, Sparkles, Star, Tv } from 'lucide-react'
-import { getActiveKey, SITES, TOOLS } from '../../config/catalog'
-import type { ActiveView } from '../../types'
+import { CalendarCheck2, Film, Home, PanelLeftClose, PanelLeftOpen, Plus, Search, ShieldCheck, Sparkles, Star, Tv } from 'lucide-react'
+import { getActiveKey, TOOLS } from '../../config/catalog'
+import type { ActiveView, SiteDefinition } from '../../types'
 
 interface SidebarProps {
   active: ActiveView
   collapsed: boolean
   favorites: string[]
+  sites: SiteDefinition[]
   onCollapse: () => void
   onNavigate: (view: ActiveView) => void
   onSearch: () => void
+  onManageSites: () => void
 }
 
-export default function Sidebar({ active, collapsed, favorites, onCollapse, onNavigate, onSearch }: SidebarProps) {
+export default function Sidebar({ active, collapsed, favorites, sites, onCollapse, onNavigate, onSearch, onManageSites }: SidebarProps) {
   const activeKey = getActiveKey(active)
   return (
     <aside className="sidebar">
@@ -37,12 +39,13 @@ export default function Sidebar({ active, collapsed, favorites, onCollapse, onNa
         {!collapsed && <div className="nav-label">常用工具</div>}
         {TOOLS.map((tool) => <NavItem key={tool.id} label={tool.name} icon={tool.icon} active={activeKey === `tool:${tool.id}`} collapsed={collapsed} favorite={favorites.includes(`tool:${tool.id}`)} onClick={() => onNavigate({ type: 'tool', id: tool.id })} />)}
         {!collapsed && <div className="nav-label site-label">常用网站</div>}
-        {SITES.map((site) => (
+        {sites.map((site) => (
           <button key={site.id} className={`nav-item ${activeKey === `site:${site.id}` ? 'active' : ''}`} onClick={() => onNavigate({ type: 'site', id: site.id })} title={site.name}>
             <span className="site-mini" style={{ background: site.color }}>{site.initials}</span>
             {!collapsed && <><span>{site.name}</span>{favorites.includes(`site:${site.id}`) && <Star size={12} fill="currentColor" />}</>}
           </button>
         ))}
+        <button className="nav-item add-site-nav" onClick={onManageSites} title="添加常用网站"><Plus size={17} />{!collapsed && <span>添加网站</span>}</button>
       </nav>
       <div className="privacy-note" title="编码与格式化工具在本地浏览器运行">
         <ShieldCheck size={17} />

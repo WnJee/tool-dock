@@ -1,20 +1,20 @@
-import { Moon, Sun } from 'lucide-react'
+import { Settings } from 'lucide-react'
 import { getViewTitle } from '../../config/catalog'
-import type { ActiveView } from '../../types'
+import type { ActiveView, SiteDefinition } from '../../types'
 
 interface TopBarProps {
   active: ActiveView
-  theme: 'dark' | 'light'
-  onTheme: () => void
+  sites: SiteDefinition[]
+  onSettings: () => void
 }
 
-export default function TopBar({ active, theme, onTheme }: TopBarProps) {
+export default function TopBar({ active, sites, onSettings }: TopBarProps) {
   return (
     <header className="topbar">
-      <div className="breadcrumb"><span>ToolDock</span><span>/</span><strong>{getViewTitle(active)}</strong></div>
+      <div className="breadcrumb"><span>ToolDock</span><span>/</span><strong>{getViewTitle(active, sites)}</strong></div>
       <div className="top-actions">
         <span className="local-status"><span /> {active.type === 'movies' || active.type === 'tv' ? 'TMDB 数据' : '本地运行'}</span>
-        <button className="icon-button" onClick={onTheme} title="切换主题">{theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}</button>
+        <button className="icon-button" onClick={onSettings} title="设置"><Settings size={18} /></button>
       </div>
     </header>
   )

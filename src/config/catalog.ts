@@ -13,7 +13,7 @@ export const SITES: SiteDefinition[] = [
     id: 'codex-radar',
     name: 'Codex 模型雷达',
     description: '查看 Codex 模型强度与评分',
-    url: 'https://codex-reset-radar.pages.dev/#model-ratings',
+    url: 'https://codexradar.com/',
     color: '#84a7ff',
     initials: 'CR',
   },
@@ -27,13 +27,13 @@ export const SITES: SiteDefinition[] = [
   },
 ]
 
-export function getViewTitle(view: ActiveView): string {
+export function getViewTitle(view: ActiveView, sites: SiteDefinition[] = SITES): string {
   if (view.type === 'home') return '工作台'
   if (view.type === 'checkin') return '每日签到'
   if (view.type === 'movies') return '影片库'
   if (view.type === 'tv') return '电视剧'
   if (view.type === 'tool') return TOOLS.find((tool) => tool.id === view.id)?.name ?? '工具'
-  return SITES.find((site) => site.id === view.id)?.name ?? '网站'
+  return sites.find((site) => site.id === view.id)?.name ?? '网站'
 }
 
 export function getActiveKey(view: ActiveView): string {
@@ -41,8 +41,8 @@ export function getActiveKey(view: ActiveView): string {
   return `${view.type}:${view.id}`
 }
 
-export function resolveCatalogName(key: string): string | undefined {
+export function resolveCatalogName(key: string, sites: SiteDefinition[] = SITES): string | undefined {
   const [type, id] = key.split(':')
   if (type === 'tool') return TOOLS.find((tool) => tool.id === id)?.name
-  return SITES.find((site) => site.id === id)?.name
+  return sites.find((site) => site.id === id)?.name
 }

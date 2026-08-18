@@ -1,8 +1,8 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
-import { CalendarCheck2, Check, CircleCheckBig, Download, ExternalLink, Link2, Pencil, Plus, Search, Trash2, Upload, X } from 'lucide-react'
+import { useEffect, useMemo, useState } from 'react'
+import { CalendarCheck2, Check, CircleCheckBig, ExternalLink, Link2, Pencil, Plus, Search, Trash2, X } from 'lucide-react'
 import PageHeader from '../components/layout/PageHeader'
-import { getLocalDateKey, mergeCheckinBackup, normalizeWebsiteUrl, parseCheckinBackup } from '../checkin-utils'
-import type { CheckinBackup, CheckinSite, DailyCompletion } from '../checkin-utils'
+import { getLocalDateKey, normalizeWebsiteUrl } from '../checkin-utils'
+import type { CheckinSite, DailyCompletion } from '../checkin-utils'
 import { getStoredValue } from '../storage'
 
 type Filter = 'pending' | 'all' | 'completed'
@@ -18,7 +18,6 @@ function CheckinPage() {
   const [query, setQuery] = useState('')
   const [editorOpen, setEditorOpen] = useState(false)
   const [editingSite, setEditingSite] = useState<CheckinSite | null>(null)
-  const importInputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => localStorage.setItem('tooldock.checkins.sites', JSON.stringify(sites)), [sites])
   useEffect(() => localStorage.setItem('tooldock.checkins.completion', JSON.stringify(completion)), [completion])
@@ -69,45 +68,9 @@ function CheckinPage() {
     setCompletion((current) => ({ ...current, ids: current.ids.filter((id) => id !== site.id) }))
   }
 
-  const exportCheckins = () => {
-    const backup: CheckinBackup = {
-      kind: 'tool-dock-checkins',
-      version: 1,
-      exportedAt: new Date().toISOString(),
-      sites,
-      completion,
-    }
-    const blobUrl = URL.createObjectURL(new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' }))
-    const link = document.createElement('a')
-    link.href = blobUrl
-    link.download = `tooldock-checkins-${today}.json`
-    document.body.appendChild(link)
-    link.click()
-    link.remove()
-    window.setTimeout(() => URL.revokeObjectURL(blobUrl), 1_000)
-  }
-
-  const importCheckins = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0]
-    event.target.value = ''
-    if (!file) return
-    try {
-      const backup = parseCheckinBackup(await file.text())
-      const result = mergeCheckinBackup(sites, completion, backup, today, createSiteId)
-      setSites(result.sites)
-      setCompletion(result.completion)
-      window.alert(`导入完成：新增 ${result.addedCount} 个，更新 ${result.updatedCount} 个签到网站。`)
-    } catch (caught) {
-      window.alert(caught instanceof Error ? `导入失败：${caught.message}` : '导入失败：文件内容无法识别')
-    }
-  }
-
   const progress = sites.length === 0 ? 0 : Math.round(completedCount / sites.length * 100)
   const headerActions = (
     <div className="checkin-header-actions">
-      <input ref={importInputRef} type="file" accept="application/json,.json" onChange={importCheckins} hidden />
-      <button className="secondary-button" onClick={() => importInputRef.current?.click()} title="从 ToolDock 签到备份导入"><Upload size={16} /> 导入</button>
-      <button className="secondary-button" onClick={exportCheckins} title="导出签到网站和今日状态"><Download size={16} /> 导出</button>
       <button className="primary-button" onClick={() => openEditor()}><Plus size={17} /> 添加网站</button>
     </div>
   )
