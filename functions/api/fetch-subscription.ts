@@ -21,7 +21,7 @@ export async function onRequestGet({ request }: Context): Promise<Response> {
       headers: { accept: 'text/plain, text/*, application/octet-stream, */*', 'user-agent': 'ToolDock Subscription Importer' },
       redirect: 'follow',
     })
-    if (!upstream.ok) return json({ error: `订阅服务返回 ${upstream.status}` }, 502)
+    if (!upstream.ok) return json({ error: upstream.status === 403 ? '订阅源拒绝了 Cloudflare Pages 的请求（403）。请将订阅客户端获取到的 Base64 内容直接粘贴导入，或使用允许 Cloudflare 出口访问的订阅地址。' : `订阅服务返回 ${upstream.status}` }, 502)
     const length = Number(upstream.headers.get('content-length') ?? 0)
     if (length > MAX_RESPONSE_BYTES) return json({ error: '订阅内容过大' }, 413)
     const body = await upstream.arrayBuffer()
