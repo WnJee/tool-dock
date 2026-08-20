@@ -35,6 +35,7 @@
 - 每日签到清单、当日进度、筛选和本地提醒
 - TMDB 电影和电视剧目录，支持名称、演员/导演、类型、地区、年份、评分和排序筛选
 - 内嵌 Codex 模型雷达与 IPPure，并可新增、编辑和删除自定义常用网站
+- 节点订阅：维护节点、启用/停用并生成可供 Clash / Mihomo 导入的固定 `/api/subscription` 订阅地址
 - 顶部统一的备份与恢复入口，可迁移主题、页面状态、收藏、最近使用、自定义网站和签到数据
 - 收藏、最近使用、深浅主题、可收起侧栏和 `Command/Ctrl + K` 全局搜索
 
@@ -86,6 +87,10 @@ Cloudflare Pages 推荐配置：
 - Node.js：22 或 24
 
 影片库和电视剧目录还需要在 Cloudflare Pages 项目的设置中添加加密变量 `TMDB_READ_TOKEN`（推荐，值为 Read Access Token）或 `TMDB_API_KEY`。前端不会接触凭据，所有 TMDB 请求都由 `functions/api/movies.ts` 和 `functions/api/tv.ts` 转发。
+
+节点订阅的跨设备使用需要在 Cloudflare Pages 绑定 KV 命名空间 `NODE_SUBSCRIPTIONS`，并设置加密变量 `NODE_ADMIN_TOKEN`。在“节点订阅”页面填写同一个管理令牌后，保存节点会同步到 KV；Clash / Mihomo 客户端使用页面显示的固定 `/api/subscription` 地址即可拉取当前启用节点。接口返回纯文本 Base64 节点列表，不是 JSON；未配置 KV 时，页面仍可在当前浏览器本地维护和复制订阅内容，但远程订阅地址不会包含本地数据。
+
+导入第三方 HTTP / HTTPS 订阅时，页面会通过 `functions/api/fetch-subscription.ts` 走同源 Pages Function 代理请求，避免浏览器 CORS 限制，然后继续解析其中的真实节点。该接口仅允许 HTTP / HTTPS，单次响应限制为 2 MB。
 
 ## 部署到 Cloudflare Pages
 

@@ -8,6 +8,7 @@ import { SITES, TOOLS } from './config/catalog'
 import type { WorkspaceData } from './backup-utils'
 import type { CheckinSite, DailyCompletion } from './checkin-utils'
 import CheckinPage from './pages/CheckinPage'
+import NodesPage from './pages/NodesPage'
 import CryptoPage from './pages/CryptoPage'
 import DashboardPage from './pages/DashboardPage'
 import EmbeddedSitePage from './pages/EmbeddedSitePage'
@@ -113,6 +114,7 @@ function App() {
   function renderActivePage() {
     if (active.type === 'home') return <DashboardPage favorites={favorites} recent={recent} sites={sites} onNavigate={navigate} onFavorite={toggleFavorite} />
     if (active.type === 'checkin') return <CheckinPage />
+    if (active.type === 'nodes') return <NodesPage />
     if (active.type === 'movies') return <MovieLibraryPage key="movie" />
     if (active.type === 'tv') return <MovieLibraryPage key="tv" mediaType="tv" />
     if (active.type === 'tool') {
