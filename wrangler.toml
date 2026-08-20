@@ -1,0 +1,6 @@
+name = "tool-dock"
+pages_build_output_dir = "dist"
+
+[[kv_namespaces]]
+binding = "NODE_SUBSCRIPTIONS"
+id = "3d2daad6949f4156be1b336fdd9b0ff3"
