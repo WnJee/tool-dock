@@ -42,11 +42,11 @@ export default function NodesPage() {
     </section>
     <section className="subscription-panel"><div><strong>Clash 订阅格式</strong><span>接口返回纯文本 Base64 节点列表，仅包含已启用节点，可直接添加到 Clash、Mihomo 等客户端</span></div><button className="secondary-button" disabled={!activeNodes.length} onClick={() => copy(subscription, 'content')}><Clipboard size={15} /> {copied === 'content' ? '已复制' : '复制 Base64 内容'}</button></section>
     <section className="nodes-config"><label><span>管理令牌 <em>选填</em></span><input type="password" value={adminToken} onChange={(event) => { setAdminToken(event.target.value); localStorage.setItem('tooldock.nodes-token', event.target.value) }} placeholder="配置 NODE_ADMIN_TOKEN 后填写" /></label><small>{syncState || '填写后，保存节点会同步到 Cloudflare KV；留空则仅保存在当前浏览器'}</small></section>
-    {editing && <NodeEditor node={editing === 'new' ? null : editing} onClose={() => setEditing(null)} onSave={save} />}
+    {editing && <NodeEditor node={editing === 'new' ? null : editing} adminToken={adminToken} onClose={() => setEditing(null)} onSave={save} />}
   </div>
 }
 
-function NodeEditor({ node, onClose, onSave }: { node: ProxyNode | null; onClose: () => void; onSave: (drafts: Array<Omit<ProxyNode, 'id' | 'enabled'>>) => void }) {
+function NodeEditor({ node, adminToken, onClose, onSave }: { node: ProxyNode | null; adminToken: string; onClose: () => void; onSave: (drafts: Array<Omit<ProxyNode, 'id' | 'enabled'>>) => void }) {
   const [mode, setMode] = useState<'single' | 'bulk'>('single')
   const [name, setName] = useState(node?.name ?? '')
   const [url, setUrl] = useState(node?.url ?? '')
@@ -55,7 +55,7 @@ function NodeEditor({ node, onClose, onSave }: { node: ProxyNode | null; onClose
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const submit = async (event: React.FormEvent) => { event.preventDefault(); setError(''); try {
-    if (mode === 'bulk' && !node) { setLoading(true); onSave((await resolveNodeInput(bulkInput)).map((item, index) => ({ name: getNodeName(item, index), url: item, note: '' }))) }
+    if (mode === 'bulk' && !node) { if (!adminToken) throw new Error('请先在页面底部填写管理令牌'); setLoading(true); onSave((await resolveNodeInput(bulkInput, adminToken)).map((item, index) => ({ name: getNodeName(item, index), url: item, note: '' }))) }
     else { if (!name.trim()) throw new Error('请输入节点名称'); onSave([{ name: name.trim(), url: normalizeNodeUrl(url), note: note.trim() }]) }
   } catch (caught) { setError(caught instanceof Error ? caught.message : '节点信息无效') } finally { setLoading(false) } }
   return <div className="dialog-backdrop" onMouseDown={onClose}><form className="site-editor node-editor" onSubmit={submit} onMouseDown={(event) => event.stopPropagation()}><div className="dialog-heading"><div><strong>{node ? '编辑节点' : '添加节点'}</strong><span>支持订阅地址、协议节点和 Base64 内容</span></div><button type="button" onClick={onClose} aria-label="关闭"><X size={18} /></button></div>{!node && <div className="segmented node-editor-modes"><button type="button" className={mode === 'single' ? 'active' : ''} onClick={() => setMode('single')}>单个节点</button><button type="button" className={mode === 'bulk' ? 'active' : ''} onClick={() => setMode('bulk')}>粘贴批量</button></div>}{mode === 'bulk' && !node ? <label><span>节点内容</span><textarea autoFocus value={bulkInput} onChange={(event) => setBulkInput(event.target.value)} placeholder={'可粘贴订阅地址，系统会自动拉取并解析其中的节点\n也可直接粘贴订阅响应里的 Base64 内容或逐行节点'} rows={8} /></label> : <><label><span>节点名称</span><input autoFocus value={name} onChange={(event) => setName(event.target.value)} placeholder="例如：香港 01" /></label><label><span>节点地址</span><div className="url-input"><Link2 size={15} /><input value={url} onChange={(event) => setUrl(event.target.value)} placeholder="ss://、vmess:// 或 trojan://…" /></div></label><label><span>备注 <em>选填</em></span><input value={note} onChange={(event) => setNote(event.target.value)} placeholder="例如：低延迟" /></label></>}{error && <div className="form-error">{error}</div>}<div className="dialog-actions"><button type="button" onClick={onClose}>取消</button><button type="submit" className="primary-button" disabled={loading}><Check size={15} /> {loading ? '正在解析…' : mode === 'bulk' && !node ? '导入节点' : node ? '保存修改' : '添加节点'}</button></div></form></div>

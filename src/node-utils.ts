@@ -6,6 +6,8 @@ export interface ProxyNode {
   enabled: boolean
 }
 
+const SUBSCRIPTION_WORKER = 'https://cf-workers-sub.wnjienn.workers.dev'
+
 export function normalizeNodeUrl(value: string) {
   const raw = value.trim()
   if (!raw) throw new Error('请输入节点地址')
@@ -36,7 +38,7 @@ export function decodeNodeInput(value: string) {
   return [...new Set(urls)]
 }
 
-export async function resolveNodeInput(value: string) {
+export async function resolveNodeInput(value: string, adminToken: string) {
   const resolved: string[] = []
   const visitedSubscriptions = new Set<string>()
 
@@ -50,7 +52,7 @@ export async function resolveNodeInput(value: string) {
       }
       if (visitedSubscriptions.has(candidate)) continue
       visitedSubscriptions.add(candidate)
-      const response = await fetch(`./api/fetch-subscription?url=${encodeURIComponent(candidate)}`)
+      const response = await fetch(`${SUBSCRIPTION_WORKER}/fetch-subscription?url=${encodeURIComponent(candidate)}`, { headers: { authorization: `Bearer ${adminToken}` } })
       const content = await response.text()
       if (!response.ok) {
         try {

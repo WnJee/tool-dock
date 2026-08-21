@@ -22,6 +22,10 @@ export default {
     const url = new URL(request.url)
     if (request.method === 'OPTIONS') return new Response(null, { status: 204, headers: corsHeaders })
     if (url.pathname === '/subscription' || url.pathname === '/api/subscription') return subscription(env)
+    if (url.pathname === '/fetch-subscription' || url.pathname === '/api/fetch-subscription') {
+      if (!authorized(request, env)) return json({ error: '订阅解析需要管理令牌' }, 401)
+      return fetchSubscription(url)
+    }
     if (url.pathname === '/nodes' || url.pathname === '/api/nodes') {
       if (!authorized(request, env)) return json({ error: 'Unauthorized' }, 401)
       if (request.method === 'GET') return json({ nodes: await readNodes(env) })
@@ -29,6 +33,27 @@ export default {
     }
     return json({ error: 'Not found' }, 404)
   },
+}
+
+async function fetchSubscription(requestUrl: URL) {
+  const target = requestUrl.searchParams.get('url')
+  if (!target) return json({ error: '缺少订阅地址' }, 400)
+  let url: URL
+  try {
+    url = new URL(target)
+    if (!['http:', 'https:'].includes(url.protocol)) throw new Error()
+  } catch {
+    return json({ error: '订阅地址必须是 HTTP 或 HTTPS' }, 400)
+  }
+  try {
+    const upstream = await fetch(url, { headers: { accept: 'text/plain, text/*, application/octet-stream, */*', 'user-agent': 'ClashMeta/1.19.0' }, redirect: 'follow' })
+    if (!upstream.ok) return json({ error: upstream.status === 403 ? '订阅源拒绝了 Cloudflare Worker 的请求（403）。请粘贴订阅客户端获取到的 Base64 内容。' : `订阅服务返回 ${upstream.status}` }, 502)
+    const body = await upstream.arrayBuffer()
+    if (body.byteLength > 2 * 1024 * 1024) return json({ error: '订阅内容过大' }, 413)
+    return new Response(body, { headers: { ...corsHeaders, 'content-type': upstream.headers.get('content-type') ?? 'text/plain; charset=utf-8', 'cache-control': 'no-store' } })
+  } catch (caught) {
+    return json({ error: caught instanceof Error ? caught.message : '订阅地址请求失败' }, 502)
+  }
 }
 
 async function subscription(env: Env) {
