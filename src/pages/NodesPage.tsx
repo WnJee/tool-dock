@@ -5,6 +5,7 @@ import { createNodeId, encodeSubscription, normalizeNodeUrl, resolveNodeInput, t
 import { getStoredValue } from '../storage'
 
 const STORAGE_KEY = 'tooldock.nodes'
+const WORKER_API = 'https://cf-workers-sub.wnjienn.workers.dev'
 
 export default function NodesPage() {
   const [nodes, setNodes] = useState<ProxyNode[]>(() => getStoredValue<ProxyNode[]>(STORAGE_KEY, []).filter((node) => !/^https?:\/\//i.test(node.url)))
@@ -14,12 +15,12 @@ export default function NodesPage() {
   const [syncState, setSyncState] = useState('')
   const activeNodes = useMemo(() => nodes.filter((node) => node.enabled), [nodes])
   const subscription = useMemo(() => encodeSubscription(nodes), [nodes])
-  const subscriptionUrl = new URL('/api/subscription', window.location.origin).href
+  const subscriptionUrl = `${WORKER_API}/subscription`
 
   const update = (next: ProxyNode[]) => {
     setNodes(next); localStorage.setItem(STORAGE_KEY, JSON.stringify(next))
     if (adminToken) {
-      void fetch('./api/nodes', { method: 'PUT', headers: { authorization: `Bearer ${adminToken}`, 'content-type': 'application/json' }, body: JSON.stringify({ content: encodeSubscription(next) }) })
+      void fetch(`${WORKER_API}/nodes`, { method: 'PUT', headers: { authorization: `Bearer ${adminToken}`, 'content-type': 'application/json' }, body: JSON.stringify({ nodes: next }) })
         .then((response) => setSyncState(response.ok ? '已同步' : '同步失败'))
         .catch(() => setSyncState('同步失败'))
     }
