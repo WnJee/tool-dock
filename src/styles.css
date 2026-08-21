@@ -249,51 +249,6 @@ kbd { border: 1px solid var(--border); border-bottom-color: var(--faint); backgr
 .primary-button:hover { filter: brightness(1.08); }
 .secondary-button { min-height: 36px; border: 1px solid var(--border); background: var(--panel); color: var(--muted); border-radius: 8px; padding: 0 12px; display: inline-flex; align-items: center; justify-content: center; gap: 6px; font-size: 11px; cursor: pointer; }
 .secondary-button:hover { color: var(--text); border-color: var(--faint); background: var(--panel-hover); }
-.nodes-page { max-width: 1320px; }
-.nodes-summary { min-height: 132px; border: 1px solid var(--border); border-radius: 12px; background: var(--panel); padding: 20px 24px; display: grid; grid-template-columns: 190px minmax(0, 1fr); align-items: center; gap: 28px; }
-.nodes-summary > div:first-child { display: flex; flex-direction: column; }
-.nodes-summary span { color: var(--muted); font-size: 10px; }
-.nodes-summary strong { font-size: 30px; line-height: 1; margin: 9px 0 6px; }
-.nodes-summary small { color: var(--faint); font-size: 9px; }
-.nodes-subscription { min-width: 0; display: grid; grid-template-columns: 1fr auto; gap: 8px 12px; align-items: center; }
-.nodes-subscription span { grid-column: 1 / -1; }
-.nodes-subscription code { min-width: 0; color: var(--text); background: var(--bg); border: 1px solid var(--border); border-radius: 7px; padding: 10px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font: 10px "DM Mono", monospace; }
-.nodes-list-panel { margin-top: 18px; border: 1px solid var(--border); border-radius: 12px; background: var(--panel); overflow: hidden; }
-.nodes-list-header, .node-row { display: grid; grid-template-columns: minmax(180px, 1fr) minmax(220px, 1.3fr) 90px 78px; gap: 16px; align-items: center; }
-.nodes-list-header { height: 35px; padding: 0 18px; border-bottom: 1px solid var(--border-soft); color: var(--faint); background: var(--panel-2); font-size: 9px; }
-.node-row { min-height: 68px; padding: 9px 18px; border-bottom: 1px solid var(--border-soft); }
-.node-row:last-of-type { border-bottom: 0; }
-.node-row:hover { background: var(--panel-hover); }
-.node-row.disabled { opacity: .55; }
-.node-name { min-width: 0; display: flex; align-items: center; gap: 10px; }
-.node-name > div { min-width: 0; display: flex; flex-direction: column; }
-.node-name strong { font-size: 11px; }
-.node-name small { margin-top: 4px; color: var(--muted); font-size: 9px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.node-avatar { width: 32px; height: 32px; border-radius: 9px; display: grid; place-items: center; color: #eea853; background: color-mix(in srgb, #eea853 14%, transparent); }
-.node-row > code { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--muted); font: 9px "DM Mono", monospace; }
-.node-status { border: 0; background: transparent; color: var(--faint); display: inline-flex; align-items: center; gap: 6px; font-size: 9px; cursor: pointer; }
-.node-status span { width: 7px; height: 7px; border-radius: 50%; background: var(--faint); }
-.node-status.enabled { color: var(--green); }
-.node-status.enabled span { background: var(--green); }
-.node-actions { display: flex; gap: 3px; }
-.node-actions .icon-button { width: 30px; height: 30px; }
-.nodes-empty { min-height: 250px; display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--faint); gap: 8px; }
-.nodes-empty strong { color: var(--text); font-size: 12px; }
-.nodes-empty span { font-size: 9px; }
-.nodes-empty .primary-button { margin-top: 10px; }
-.subscription-panel { margin-top: 18px; min-height: 70px; padding: 14px 18px; border: 1px solid var(--border); border-radius: 10px; background: var(--panel); display: flex; align-items: center; justify-content: space-between; gap: 18px; }
-.subscription-panel > div { display: flex; flex-direction: column; gap: 5px; }
-.subscription-panel strong { font-size: 11px; }
-.subscription-panel span, .nodes-local-note { color: var(--muted); font-size: 9px; }
-.nodes-local-note { margin: 12px 2px 0; line-height: 1.6; }
-.nodes-config { margin-top: 12px; display: flex; align-items: flex-end; gap: 12px; }
-.nodes-config label { width: min(360px, 100%); display: flex; flex-direction: column; gap: 6px; color: var(--muted); font-size: 9px; }
-.nodes-config input { height: 32px; border: 1px solid var(--border); border-radius: 7px; background: var(--bg); color: var(--text); padding: 0 10px; font-size: 10px; outline: 0; }
-.nodes-config input:focus { border-color: var(--accent); }
-.nodes-config small { color: var(--faint); font-size: 9px; }
-.node-editor-modes { margin: 16px 0 4px; align-self: flex-start; }
-.node-editor textarea { min-height: 150px; resize: vertical; border: 1px solid var(--border); border-radius: 7px; background: var(--bg); color: var(--text); padding: 10px; outline: 0; font: 11px/1.6 "DM Mono", monospace; }
-.node-editor textarea:focus { border-color: var(--accent); }
 .checkin-page { max-width: 1320px; }
 .checkin-header-actions { display: flex; align-items: center; gap: 8px; }
 .checkin-summary { min-height: 150px; border: 1px solid var(--border); border-radius: 12px; background: var(--panel); padding: 24px 28px; display: grid; grid-template-columns: 220px minmax(280px, 1fr) 64px; align-items: center; gap: 42px; }
@@ -570,13 +525,6 @@ kbd { border: 1px solid var(--border); border-bottom-color: var(--faint); backgr
   .movie-card-body p { -webkit-line-clamp: 2; }
   .movie-links { gap: 10px; }
   .site-manager-dialog, .site-editor { width: calc(100vw - 28px); padding: 16px; }
-  .nodes-summary { grid-template-columns: 1fr; gap: 18px; }
-  .nodes-list-header { display: none; }
-  .node-row { grid-template-columns: minmax(0, 1fr) auto; gap: 8px 12px; padding: 13px 14px; }
-  .node-row > code { grid-column: 1 / -1; grid-row: 2; }
-  .node-status { grid-column: 2; grid-row: 1; }
-  .node-actions { grid-column: 2; grid-row: 3; justify-content: flex-end; }
-  .subscription-panel { align-items: flex-start; flex-direction: column; }
   .settings-drawer { width: min(380px, 100vw); }
   .site-manager-toolbar { flex-wrap: wrap; }
   .site-manager-toolbar .primary-button { flex: 1 0 100%; order: -1; margin-left: 0; }

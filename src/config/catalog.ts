@@ -30,7 +30,6 @@ export const SITES: SiteDefinition[] = [
 export function getViewTitle(view: ActiveView, sites: SiteDefinition[] = SITES): string {
   if (view.type === 'home') return '工作台'
   if (view.type === 'checkin') return '每日签到'
-  if (view.type === 'nodes') return '节点订阅'
   if (view.type === 'movies') return '影片库'
   if (view.type === 'tv') return '电视剧'
   if (view.type === 'tool') return TOOLS.find((tool) => tool.id === view.id)?.name ?? '工具'
@@ -38,7 +37,7 @@ export function getViewTitle(view: ActiveView, sites: SiteDefinition[] = SITES):
 }
 
 export function getActiveKey(view: ActiveView): string {
-  if (view.type === 'home' || view.type === 'checkin' || view.type === 'nodes' || view.type === 'movies' || view.type === 'tv') return view.type
+  if (view.type === 'home' || view.type === 'checkin' || view.type === 'movies' || view.type === 'tv') return view.type
   return `${view.type}:${view.id}`
 }
 

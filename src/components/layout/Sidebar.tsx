@@ -1,4 +1,4 @@
-import { CalendarCheck2, Film, Home, PanelLeftClose, PanelLeftOpen, Plus, Radio, Search, ShieldCheck, Sparkles, Star, Tv } from 'lucide-react'
+import { CalendarCheck2, Film, Home, PanelLeftClose, PanelLeftOpen, Plus, Search, ShieldCheck, Sparkles, Star, Tv } from 'lucide-react'
 import { getActiveKey, TOOLS } from '../../config/catalog'
 import type { ActiveView, SiteDefinition } from '../../types'
 
@@ -34,7 +34,6 @@ export default function Sidebar({ active, collapsed, favorites, sites, onCollaps
         <NavItem label="首页" icon={Home} active={activeKey === 'home'} collapsed={collapsed} onClick={() => onNavigate({ type: 'home' })} />
         {!collapsed && <div className="nav-label">日常</div>}
         <NavItem label="每日签到" icon={CalendarCheck2} active={activeKey === 'checkin'} collapsed={collapsed} onClick={() => onNavigate({ type: 'checkin' })} />
-        <NavItem label="节点订阅" icon={Radio} active={activeKey === 'nodes'} collapsed={collapsed} onClick={() => onNavigate({ type: 'nodes' })} />
         <NavItem label="影片库" icon={Film} active={activeKey === 'movies'} collapsed={collapsed} onClick={() => onNavigate({ type: 'movies' })} />
         <NavItem label="电视剧" icon={Tv} active={activeKey === 'tv'} collapsed={collapsed} onClick={() => onNavigate({ type: 'tv' })} />
         {!collapsed && <div className="nav-label">常用工具</div>}
