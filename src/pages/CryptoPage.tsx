@@ -14,7 +14,7 @@ interface CryptoPageProps {
 export default function CryptoPage({ tool, favorite, onFavorite }: CryptoPageProps) {
   const [algorithm, setAlgorithm] = useState<CryptoAlgorithm>('base64')
   const definition = useMemo(() => CRYPTO_ALGORITHMS.find((item) => item.id === algorithm)!, [algorithm])
-  const [mode, setMode] = useState<CryptoMode>('encode')
+  const [mode, setMode] = useState<CryptoMode>('decode')
   const [input, setInput] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
@@ -22,7 +22,7 @@ export default function CryptoPage({ tool, favorite, onFavorite }: CryptoPagePro
   const [error, setError] = useState('')
   const [copied, setCopied] = useState(false)
 
-  useEffect(() => setMode(definition.modes[0][0]), [definition])
+  useEffect(() => setMode(definition.modes.find(([value]) => value === 'decode')?.[0] ?? definition.modes[0][0]), [definition])
 
   useEffect(() => {
     let active = true
