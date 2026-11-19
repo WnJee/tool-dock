@@ -13,8 +13,8 @@ export default function PageHeader({ icon: Icon, title, description, color, acti
   return (
     <header className="page-heading page-header">
       <div className="heading-main">
-        <span className="tool-icon large" style={{ color, background: `${color}18` }}>
-          <Icon size={25} />
+        <span className="tool-icon large" style={{ color }}>
+          <Icon size={22} />
         </span>
         <div className="page-title-copy">
           <h1>{title}</h1>

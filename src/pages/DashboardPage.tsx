@@ -1,6 +1,8 @@
-import { Braces, Star } from 'lucide-react'
-import { resolveCatalogName, TOOLS } from '../config/catalog'
-import type { ActiveView, SiteDefinition, ToolDefinition, ToolId } from '../types'
+import { useMemo, useState } from 'react'
+import { ArrowUpRight, Search, Star, X } from 'lucide-react'
+import type { LucideIcon } from 'lucide-react'
+import { TOOLS } from '../config/catalog'
+import type { ActiveView, SiteDefinition, ToolId } from '../types'
 
 interface DashboardPageProps {
   favorites: string[]
@@ -10,121 +12,170 @@ interface DashboardPageProps {
   onFavorite: (key: string) => void
 }
 
+type FilterId = 'all' | 'tool' | 'site' | 'favorite' | 'recent'
+
+interface Entry {
+  key: string
+  name: string
+  description: string
+  type: 'tool' | 'site'
+  color: string
+  initials: string
+  icon?: LucideIcon
+}
+
 export default function DashboardPage({ favorites, recent, sites, onNavigate, onFavorite }: DashboardPageProps) {
+  const [filter, setFilter] = useState<FilterId>('all')
+  const [query, setQuery] = useState('')
+
+  const entries = useMemo<Entry[]>(
+    () => [
+      ...TOOLS.map((tool) => ({
+        key: `tool:${tool.id}`,
+        name: tool.name,
+        description: tool.description,
+        type: 'tool' as const,
+        color: tool.color,
+        initials: '',
+        icon: tool.icon,
+      })),
+      ...sites.map((site) => ({
+        key: `site:${site.id}`,
+        name: site.name,
+        description: site.description,
+        type: 'site' as const,
+        color: site.color,
+        initials: site.initials,
+      })),
+    ],
+    [sites],
+  )
+
+  const counts = useMemo(
+    () => ({
+      all: entries.length,
+      tool: entries.filter((entry) => entry.type === 'tool').length,
+      site: entries.filter((entry) => entry.type === 'site').length,
+      favorite: entries.filter((entry) => favorites.includes(entry.key)).length,
+      recent: entries.filter((entry) => recent.includes(entry.key)).length,
+    }),
+    [entries, favorites, recent],
+  )
+
+  const tabs: { id: FilterId; label: string }[] = [
+    { id: 'all', label: '全部' },
+    { id: 'tool', label: '工具' },
+    { id: 'site', label: '网站' },
+    { id: 'favorite', label: '收藏' },
+    { id: 'recent', label: '最近' },
+  ]
+
+  const visible = useMemo(() => {
+    const keyword = query.trim().toLowerCase()
+    const filtered = entries.filter((entry) => {
+      if (filter === 'tool' && entry.type !== 'tool') return false
+      if (filter === 'site' && entry.type !== 'site') return false
+      if (filter === 'favorite' && !favorites.includes(entry.key)) return false
+      if (filter === 'recent' && !recent.includes(entry.key)) return false
+      if (!keyword) return true
+      return entry.name.toLowerCase().includes(keyword) || entry.description.toLowerCase().includes(keyword)
+    })
+    if (filter === 'recent') {
+      return filtered.sort((a, b) => recent.indexOf(a.key) - recent.indexOf(b.key))
+    }
+    return filtered
+  }, [entries, favorites, filter, query, recent])
+
   function openKey(key: string) {
     const [type, id] = key.split(':')
     if (type === 'tool') onNavigate({ type: 'tool', id: id as ToolId })
     else onNavigate({ type: 'site', id })
   }
 
-  const favoriteItems = [
-    ...TOOLS.map((item) => ({ key: `tool:${item.id}`, item, type: 'tool' as const })),
-    ...sites.map((item) => ({ key: `site:${item.id}`, item, type: 'site' as const })),
-  ].filter(({ key }) => favorites.includes(key))
-
   return (
     <div className="dashboard page-container">
-      <section className="hero">
-        <div>
-          <h1>工作台</h1>
+      <header className="dash-header">
+        <h1>工作台</h1>
+        <div className="dash-stats">
+          <span>
+            <b>{String(counts.tool).padStart(2, '0')}</b> 工具
+          </span>
+          <span>
+            <b>{String(counts.site).padStart(2, '0')}</b> 网站
+          </span>
+          <span>
+            <b>{String(counts.favorite).padStart(2, '0')}</b> 收藏
+          </span>
         </div>
-        <div className="hero-orb">
-          <Braces size={46} />
+      </header>
+
+      <div className="dash-controls">
+        <label className="dash-search">
+          <Search size={15} aria-hidden />
+          <input type="search" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="筛选工具与网站…" aria-label="筛选工具与网站" />
+          {query ? (
+            <button type="button" onClick={() => setQuery('')} aria-label="清空筛选">
+              <X size={13} />
+            </button>
+          ) : null}
+        </label>
+        <div className="dash-filters" role="tablist" aria-label="条目分类">
+          {tabs.map((tab) => (
+            <button
+              key={tab.id}
+              type="button"
+              role="tab"
+              aria-selected={filter === tab.id}
+              className={filter === tab.id ? 'active' : ''}
+              onClick={() => setFilter(tab.id)}
+            >
+              {tab.label}
+              <span className="dash-count">{String(counts[tab.id]).padStart(2, '0')}</span>
+            </button>
+          ))}
         </div>
-      </section>
-      <section className="section-block">
-        <div className="section-heading">
-          <div>
-            <h2>快速开始</h2>
-          </div>
-        </div>
-        <div className="tool-grid">
-          {TOOLS.map((tool) => {
-            const Icon = tool.icon
-            return (
-              <button className="tool-card" key={tool.id} onClick={() => onNavigate({ type: 'tool', id: tool.id })}>
-                <span className="tool-icon" style={{ color: tool.color, background: `${tool.color}18` }}>
-                  <Icon size={22} />
-                </span>
-                <span className="card-content">
-                  <strong>{tool.name}</strong>
-                  <small>{tool.description}</small>
-                </span>
-                <span className="arrow">→</span>
-              </button>
-            )
-          })}
-        </div>
-      </section>
-      <div className="dashboard-columns">
-        <section className="section-block panel-block">
-          <div className="section-heading">
-            <div>
-              <h2>收藏</h2>
-            </div>
-          </div>
-          <div className="compact-list">
-            {favoriteItems.map(({ key, item, type }) => (
-              <FavoriteRow key={key} itemKey={key} item={item} type={type} onOpen={openKey} onFavorite={onFavorite} />
-            ))}
-          </div>
-        </section>
-        <section className="section-block panel-block">
-          <div className="section-heading">
-            <div>
-              <h2>最近使用</h2>
-            </div>
-          </div>
-          {recent.length === 0 ? (
-            <div className="empty-state">暂无</div>
-          ) : (
-            <div className="recent-chips">
-              {recent.map((key) => (
-                <button key={key} onClick={() => openKey(key)}>
-                  {resolveCatalogName(key, sites)}
-                </button>
-              ))}
-            </div>
-          )}
-        </section>
       </div>
-    </div>
-  )
-}
 
-interface FavoriteRowProps {
-  itemKey: string
-  item: ToolDefinition | SiteDefinition
-  type: 'tool' | 'site'
-  onOpen: (key: string) => void
-  onFavorite: (key: string) => void
-}
-
-function FavoriteRow({ itemKey, item, type, onOpen, onFavorite }: FavoriteRowProps) {
-  let icon
-  if (type === 'tool') {
-    const Icon = (item as ToolDefinition).icon
-    icon = <Icon size={18} />
-  } else {
-    const site = item as SiteDefinition
-    icon = (
-      <span className="site-mini" style={{ background: site.color }}>
-        {site.initials}
-      </span>
-    )
-  }
-  return (
-    <div className="compact-row">
-      <button onClick={() => onOpen(itemKey)}>
-        {icon}
-        <span>
-          <strong>{item.name}</strong>
-          <small>{item.description}</small>
-        </span>
-      </button>
-      <button className="icon-button subtle" onClick={() => onFavorite(itemKey)} title="取消收藏">
-        <Star size={15} fill="currentColor" />
-      </button>
+      <div className="dash-table" role="list">
+        <div className="dash-table-head" aria-hidden>
+          <span>名称</span>
+          <span>类型</span>
+          <span>最近</span>
+          <span />
+        </div>
+        {visible.map((entry) => {
+          const isFavorite = favorites.includes(entry.key)
+          return (
+            <div className="dash-row" key={entry.key} role="listitem">
+              <button type="button" className="dash-row-main" onClick={() => openKey(entry.key)}>
+                <span className="dash-row-icon" style={{ color: entry.color }}>
+                  {entry.icon ? <entry.icon size={16} /> : entry.initials}
+                </span>
+                <span className="dash-row-text">
+                  <strong>{entry.name}</strong>
+                  <small>{entry.description}</small>
+                </span>
+              </button>
+              <span className={`dash-type ${entry.type}`}>{entry.type === 'tool' ? '工具' : '网站'}</span>
+              <span className={`dash-dot ${recent.includes(entry.key) ? '' : 'off'}`} aria-hidden />
+              <div className="dash-row-actions">
+                <button
+                  type="button"
+                  className={`dash-star ${isFavorite ? 'active' : ''}`}
+                  onClick={() => onFavorite(entry.key)}
+                  aria-label={isFavorite ? `取消收藏 ${entry.name}` : `收藏 ${entry.name}`}
+                >
+                  <Star size={15} fill={isFavorite ? 'currentColor' : 'none'} />
+                </button>
+                <button type="button" className="dash-open" onClick={() => openKey(entry.key)} aria-label={`打开 ${entry.name}`}>
+                  <ArrowUpRight size={16} />
+                </button>
+              </div>
+            </div>
+          )
+        })}
+        {visible.length === 0 && <div className="dash-empty">没有匹配条目</div>}
+      </div>
     </div>
   )
 }

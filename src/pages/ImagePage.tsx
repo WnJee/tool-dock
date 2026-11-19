@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { ArrowLeft, ArrowRight, Download, ImagePlus, Images, Layers, Loader2, RefreshCw, Trash2, Upload, X } from 'lucide-react'
 import SegmentedControl from '../components/common/SegmentedControl'
+import Select from '../components/common/Select'
 import Tabs, { type TabItem } from '../components/common/Tabs'
 import ToolPageShell from '../components/common/ToolPageShell'
 import ToolToolbar from '../components/common/ToolToolbar'
@@ -406,16 +407,10 @@ export default function ImagePage({ tool, favorite, onFavorite }: ImagePageProps
           <section className="image-options">
             {mode === 'compress' ? (
               <>
-                <label className="image-option-field">
+                <div className="image-option-field">
                   <span>输出格式</span>
-                  <select value={format} onChange={(event) => setFormat(event.target.value as OutputFormat)}>
-                    {OUTPUT_FORMATS.map(([value, label]) => (
-                      <option key={value} value={value}>
-                        {label}
-                      </option>
-                    ))}
-                  </select>
-                </label>
+                  <Select label="输出格式" value={format} options={OUTPUT_FORMATS} onChange={setFormat} />
+                </div>
                 <label className="image-option-field narrow">
                   <span>最大宽度</span>
                   <input type="number" min="0" value={maxWidth} placeholder="不限制" onChange={(event) => setMaxWidth(event.target.value)} />
@@ -468,16 +463,10 @@ export default function ImagePage({ tool, favorite, onFavorite }: ImagePageProps
                   <span>背景色</span>
                   <input type="color" value={background} onChange={(event) => setBackground(event.target.value)} />
                 </label>
-                <label className="image-option-field">
+                <div className="image-option-field">
                   <span>输出格式</span>
-                  <select value={format} onChange={(event) => setFormat(event.target.value as OutputFormat)}>
-                    {OUTPUT_FORMATS.map(([value, label]) => (
-                      <option key={value} value={value}>
-                        {label}
-                      </option>
-                    ))}
-                  </select>
-                </label>
+                  <Select label="输出格式" value={format} options={OUTPUT_FORMATS} onChange={setFormat} />
+                </div>
                 {lossyQuality && (
                   <label className="image-option-field grow">
                     <span>画质 {quality}%</span>
@@ -506,6 +495,7 @@ export default function ImagePage({ tool, favorite, onFavorite }: ImagePageProps
               {outputs.length === 0 ? (
                 <div className="image-empty">
                   <ImagePlus size={22} />
+                  <span>处理结果会显示在这里</span>
                 </div>
               ) : (
                 <div className="image-output-list">
@@ -562,6 +552,7 @@ export default function ImagePage({ tool, favorite, onFavorite }: ImagePageProps
               ) : (
                 <div className="image-empty">
                   <Images size={22} />
+                  <span>拼接长图会显示在这里</span>
                 </div>
               )}
             </section>

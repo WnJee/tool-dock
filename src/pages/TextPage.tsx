@@ -96,6 +96,7 @@ export default function TextPage({ tool, favorite, onFavorite }: TextPageProps) 
             <RotateCcw size={14} /> 重置选项
           </button>
         }
+        controlsClassName="text-actions"
       />
       <section className="text-options">
         {optionTab === 'clean' && (

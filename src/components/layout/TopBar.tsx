@@ -18,7 +18,7 @@ export default function TopBar({ active, sites, onSettings }: TopBarProps) {
       </div>
       <div className="top-actions">
         <button className="icon-button" onClick={onSettings} title="设置">
-          <Settings size={18} />
+          <Settings size={16} />
         </button>
       </div>
     </header>

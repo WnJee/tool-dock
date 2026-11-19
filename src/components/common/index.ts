@@ -1,6 +1,7 @@
 export { default as ErrorBoundary } from './ErrorBoundary'
 export { default as FavoriteButton } from './FavoriteButton'
 export { default as SegmentedControl, type SegmentedOption } from './SegmentedControl'
+export { default as Select } from './Select'
 export { default as Tabs, type TabItem } from './Tabs'
 export { default as ToolPageShell } from './ToolPageShell'
 export { default as ToolToolbar } from './ToolToolbar'

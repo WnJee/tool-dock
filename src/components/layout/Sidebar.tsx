@@ -20,7 +20,7 @@ export default function Sidebar({ active, collapsed, favorites, sites, onCollaps
       <div className="brand-row">
         <button className="brand" onClick={() => onNavigate({ type: 'home' })} aria-label="回到首页">
           <span className="brand-mark">
-            <Sparkles size={17} />
+            <Sparkles size={15} />
           </span>
           {!collapsed && <span>ToolDock</span>}
         </button>
@@ -29,7 +29,7 @@ export default function Sidebar({ active, collapsed, favorites, sites, onCollaps
         </button>
       </div>
       <button className="search-trigger" onClick={onSearch}>
-        <Search size={17} />
+        <Search size={15} />
         {!collapsed && (
           <>
             <span>搜索工具与网站</span>
@@ -75,13 +75,13 @@ export default function Sidebar({ active, collapsed, favorites, sites, onCollaps
             {!collapsed && (
               <>
                 <span>{site.name}</span>
-                {favorites.includes(`site:${site.id}`) && <Star size={12} fill="currentColor" />}
+                {favorites.includes(`site:${site.id}`) && <Star size={11} fill="currentColor" />}
               </>
             )}
           </button>
         ))}
         <button className="nav-item add-site-nav" onClick={onManageSites} title="添加常用网站">
-          <Plus size={17} />
+          <Plus size={16} />
           {!collapsed && <span>添加网站</span>}
         </button>
       </nav>
@@ -101,11 +101,11 @@ interface NavItemProps {
 function NavItem({ label, icon: Icon, active, collapsed, favorite, onClick }: NavItemProps) {
   return (
     <button className={`nav-item ${active ? 'active' : ''}`} onClick={onClick} title={label}>
-      <Icon size={18} />
+      <Icon size={16} />
       {!collapsed && (
         <>
           <span>{label}</span>
-          {favorite && <Star size={12} fill="currentColor" />}
+          {favorite && <Star size={11} fill="currentColor" />}
         </>
       )}
     </button>

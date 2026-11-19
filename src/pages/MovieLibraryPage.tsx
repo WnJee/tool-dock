@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { ChevronDown, ExternalLink, Film, RotateCcw, Search, SlidersHorizontal, Star, Tv } from 'lucide-react'
 import PageHeader from '../components/layout/PageHeader'
+import { Select } from '../components/common'
 import { getGenreNames, MOVIE_GENRES, MOVIE_REGIONS, searchMovies, searchTvShows, TV_GENRES } from '../lib/movie'
 import type { MovieFilters, MovieSearchResponse, MovieSummary } from '../lib/movie'
 
@@ -155,15 +156,22 @@ function MovieLibraryPage({ mediaType = 'movie' }: { mediaType?: 'movie' | 'tv' 
           <span>演员 / 导演</span>
           <input value={filters.person} onChange={(event) => setFilters({ ...filters, person: event.target.value })} placeholder="例如：周星驰" />
         </label>
-        <label>
+        <div className="movie-field">
           <span>排序</span>
-          <select value={filters.sort} onChange={(event) => setFilters({ ...filters, sort: event.target.value })}>
-            <option value="popularity.desc">热度从高到低</option>
-            <option value="vote_average.desc">评分从高到低</option>
-            <option value="primary_release_date.desc">{isTv ? '首播' : '上映'}时间从新到旧</option>
-            <option value="primary_release_date.asc">{isTv ? '首播' : '上映'}时间从旧到新</option>
-          </select>
-        </label>
+          <Select
+            label="排序方式"
+            value={filters.sort}
+            onChange={(sort) => setFilters({ ...filters, sort })}
+            options={
+              [
+                ['popularity.desc', '热度从高到低'],
+                ['vote_average.desc', '评分从高到低'],
+                ['primary_release_date.desc', `${isTv ? '首播' : '上映'}时间从新到旧`],
+                ['primary_release_date.asc', `${isTv ? '首播' : '上映'}时间从旧到新`],
+              ] as const
+            }
+          />
+        </div>
         <div className="movie-filter-actions">
           <button type="button" className="secondary-button" onClick={() => setDetailsOpen((open) => !open)}>
             <SlidersHorizontal size={15} /> 详细搜索 <ChevronDown size={14} className={detailsOpen ? 'rotate-180' : ''} />
