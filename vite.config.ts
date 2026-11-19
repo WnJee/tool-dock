@@ -7,7 +7,7 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        target: 'https://tool-dock.pages.dev',
+        target: 'https://tool-dock-43g.pages.dev',
         changeOrigin: true,
         secure: true,
       },

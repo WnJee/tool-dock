@@ -137,7 +137,7 @@ npx wrangler login
 npm run deploy:pages
 ```
 
-脚本默认部署到 `tool-dock` 项目的 `main` 分支，生产地址为 <https://tool-dock.pages.dev/>。其他项目或分支可以通过环境变量覆盖：
+脚本默认部署到 `tool-dock` 项目的 `main` 分支，生产地址为 <https://tool-dock-43g.pages.dev/>。其他项目或分支可以通过环境变量覆盖：
 
 ```bash
 CLOUDFLARE_PAGES_PROJECT=my-project CLOUDFLARE_PAGES_BRANCH=preview npm run deploy:pages

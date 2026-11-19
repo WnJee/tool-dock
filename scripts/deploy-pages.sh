@@ -26,4 +26,5 @@ echo "[3/3] 部署到 Cloudflare Pages: $PROJECT_NAME ($BRANCH_NAME)"
   --branch "$BRANCH_NAME" \
   --commit-dirty=true
 
-echo "部署完成：https://$PROJECT_NAME.pages.dev/"
+SUBDOMAIN="$(npx wrangler pages project list 2>/dev/null | awk -v project="$PROJECT_NAME" '$2 == project { print $4; exit }')"
+echo "部署完成：https://${SUBDOMAIN:-$PROJECT_NAME.pages.dev}/"
