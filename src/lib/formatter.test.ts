@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { escapeJson, propertiesToYaml, transformFormat, unescapeJson, yamlToProperties } from './formatter-utils'
+import { escapeJson, propertiesToYaml, transformFormat, unescapeJson, yamlToProperties } from './formatter'
 
 describe('JSON string transforms', () => {
   it('escapes and unescapes JSON text', () => {
@@ -20,12 +20,9 @@ describe('YAML and Properties conversion', () => {
   const yaml = 'server:\n  port: 8080\n  enabled: true\n  hosts:\n    - api.example.com\n    - backup.example.com\n'
 
   it('flattens nested YAML into property paths', () => {
-    expect(yamlToProperties(yaml)).toBe([
-      'server.port=8080',
-      'server.enabled=true',
-      'server.hosts[0]=api.example.com',
-      'server.hosts[1]=backup.example.com',
-    ].join('\n'))
+    expect(yamlToProperties(yaml)).toBe(
+      ['server.port=8080', 'server.enabled=true', 'server.hosts[0]=api.example.com', 'server.hosts[1]=backup.example.com'].join('\n'),
+    )
   })
 
   it('reconstructs nested values and arrays from Properties', () => {

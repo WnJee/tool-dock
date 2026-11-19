@@ -1,5 +1,13 @@
 import { describe, expect, it } from 'vitest'
-import { generateChinaMobile, generateRandomData, generateUsTestPhone, PASSWORD_RULES } from './random-data'
+import {
+  generateChinaMobile,
+  generateChineseAddress,
+  generateChineseName,
+  generateRandomData,
+  generateUsName,
+  generateUsTestPhone,
+  PASSWORD_RULES,
+} from './random-data'
 
 describe('random profiles and contacts', () => {
   it('generates a complete China shipping profile', () => {
@@ -7,7 +15,7 @@ describe('random profiles and contacts', () => {
     expect(profile.name).toBeTruthy()
     expect(profile.phone).toMatch(/^1[3-9]\d{9}$/)
     expect(profile['postal-code']).toMatch(/^\d{6}$/)
-    expect(profile.address).toMatch(/(?:省|市).+(?:路|大道)\d+号/)
+    expect(profile.address).toMatch(/(?:省|市).+(?:路|大道|街|巷|弄)\d+号/)
   })
 
   it('generates a US billing profile with reserved test contacts', () => {
@@ -21,6 +29,23 @@ describe('random profiles and contacts', () => {
   it('generates format-valid phone numbers', () => {
     expect(generateChinaMobile()).toMatch(/^1[3-9]\d{9}$/)
     expect(generateUsTestPhone('212')).toMatch(/^\+1 \(212\) 555-01\d{2}$/)
+  })
+
+  it('composes values instead of rotating a small fixed list', () => {
+    const names = new Set(Array.from({ length: 40 }, () => generateChineseName()))
+    const addresses = new Set(Array.from({ length: 40 }, () => generateChineseAddress().address))
+    const usNames = new Set(Array.from({ length: 40 }, () => generateUsName()))
+    expect(names.size).toBeGreaterThan(30)
+    expect(addresses.size).toBeGreaterThan(30)
+    expect(usNames.size).toBeGreaterThan(30)
+  })
+
+  it('keeps postal codes six digits and addresses located', () => {
+    for (let index = 0; index < 50; index += 1) {
+      const { address, postalCode } = generateChineseAddress()
+      expect(postalCode).toMatch(/^\d{6}$/)
+      expect(address).toMatch(/^.{2,}(?:省|市)/)
+    }
   })
 })
 

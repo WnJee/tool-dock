@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { decodeBase32, decodeBase64Url, decodeHex, encodeBase32, encodeBase64Url, encodeHex, generateRandomPassword256, md5, transformCrypto } from './crypto-utils'
+import { decodeBase32, decodeBase64Url, decodeHex, encodeBase32, encodeBase64Url, encodeHex, generateRandomPassword256, md5, transformCrypto } from './crypto'
 
 describe('common encodings', () => {
   it('matches Base32 vectors and round-trips unicode', () => {

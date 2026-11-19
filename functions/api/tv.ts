@@ -79,7 +79,10 @@ export async function onRequestGet({ request, env }: Context): Promise<Response>
     const params: Record<string, string | number> = useTitleSearch
       ? { query, language: 'zh-CN', include_adult: 'false', page }
       : {
-          language: 'zh-CN', include_adult: 'false', page, sort_by: sort,
+          language: 'zh-CN',
+          include_adult: 'false',
+          page,
+          sort_by: sort,
           ...(genre ? { with_genres: genre } : {}),
           ...(region ? { with_origin_country: region } : {}),
           ...(yearFrom ? { 'first_air_date.gte': `${yearFrom}-01-01` } : {}),
@@ -133,11 +136,13 @@ function tvSorter(sort: string) {
 
 function matchesFilters(show: TmdbTvShow, genre: string, region: string, yearFrom?: number, yearTo?: number, rating?: number) {
   const airYear = Number(show.first_air_date?.slice(0, 4))
-  return (!genre || show.genre_ids?.includes(Number(genre)))
-    && (!region || show.origin_country?.includes(region))
-    && (!yearFrom || airYear >= yearFrom)
-    && (!yearTo || airYear <= yearTo)
-    && (!rating || (show.vote_average ?? 0) >= rating)
+  return (
+    (!genre || show.genre_ids?.includes(Number(genre))) &&
+    (!region || show.origin_country?.includes(region)) &&
+    (!yearFrom || airYear >= yearFrom) &&
+    (!yearTo || airYear <= yearTo) &&
+    (!rating || (show.vote_average ?? 0) >= rating)
+  )
 }
 
 function mapTvShow(show: TmdbTvShow) {
@@ -163,5 +168,8 @@ function clampNumber(value: string | null, min: number, max: number, fallback?: 
 }
 
 function json(body: unknown, status = 200) {
-  return new Response(JSON.stringify(body), { status, headers: { 'content-type': 'application/json; charset=utf-8', 'cache-control': status === 200 ? 'public, max-age=300' : 'no-store' } })
+  return new Response(JSON.stringify(body), {
+    status,
+    headers: { 'content-type': 'application/json; charset=utf-8', 'cache-control': status === 200 ? 'public, max-age=300' : 'no-store' },
+  })
 }

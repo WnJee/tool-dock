@@ -2,20 +2,23 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import CommandPalette from './components/CommandPalette'
 import SettingsDrawer from './components/SettingsDrawer'
 import SiteManagerDialog from './components/SiteManagerDialog'
+import ErrorBoundary from './components/common/ErrorBoundary'
 import Sidebar from './components/layout/Sidebar'
 import TopBar from './components/layout/TopBar'
 import { SITES, TOOLS } from './config/catalog'
-import type { WorkspaceData } from './backup-utils'
-import type { CheckinSite, DailyCompletion } from './checkin-utils'
+import type { WorkspaceData } from './lib/backup'
+import type { CheckinSite, DailyCompletion } from './lib/checkin'
 import CheckinPage from './pages/CheckinPage'
 import CryptoPage from './pages/CryptoPage'
 import DashboardPage from './pages/DashboardPage'
 import EmbeddedSitePage from './pages/EmbeddedSitePage'
 import FormatterPage from './pages/FormatterPage'
+import ImagePage from './pages/ImagePage'
 import MovieLibraryPage from './pages/MovieLibraryPage'
 import RandomDataPage from './pages/RandomDataPage'
+import TextPage from './pages/TextPage'
 import TimestampPage from './pages/TimestampPage'
-import { getStoredValue } from './storage'
+import { getStoredValue } from './lib/storage'
 import type { ActiveView, SiteDefinition } from './types'
 
 function App() {
@@ -81,7 +84,7 @@ function App() {
   }
 
   function toggleFavorite(key: string) {
-    setFavorites((current) => current.includes(key) ? current.filter((item) => item !== key) : [...current, key])
+    setFavorites((current) => (current.includes(key) ? current.filter((item) => item !== key) : [...current, key]))
   }
 
   function updateCustomSites(nextSites: SiteDefinition[]) {
@@ -93,7 +96,7 @@ function App() {
       localStorage.setItem('tooldock.recent', JSON.stringify(updated))
       return updated
     })
-    setActive((current) => current.type === 'site' && !availableSiteKeys.has(`site:${current.id}`) ? { type: 'home' } : current)
+    setActive((current) => (current.type === 'site' && !availableSiteKeys.has(`site:${current.id}`) ? { type: 'home' } : current))
   }
 
   function getWorkspaceData(): WorkspaceData {
@@ -121,21 +124,41 @@ function App() {
       const props = { tool, favorite: favorites.includes(`tool:${tool.id}`), onFavorite: () => toggleFavorite(`tool:${tool.id}`) }
       if (tool.id === 'crypto') return <CryptoPage key={tool.id} {...props} />
       if (tool.id === 'json') return <FormatterPage key={tool.id} {...props} />
-      return tool.id === 'random' ? <RandomDataPage key={tool.id} {...props} /> : <TimestampPage key={tool.id} {...props} />
+      if (tool.id === 'random') return <RandomDataPage key={tool.id} {...props} />
+      if (tool.id === 'image') return <ImagePage key={tool.id} {...props} />
+      if (tool.id === 'text') return <TextPage key={tool.id} {...props} />
+      return <TimestampPage key={tool.id} {...props} />
     }
     const site = sites.find((item) => item.id === active.id)
-    return site ? <EmbeddedSitePage key={site.id} site={site} favorite={favorites.includes(`site:${site.id}`)} onFavorite={() => toggleFavorite(`site:${site.id}`)} /> : null
+    return site ? (
+      <EmbeddedSitePage key={site.id} site={site} favorite={favorites.includes(`site:${site.id}`)} onFavorite={() => toggleFavorite(`site:${site.id}`)} />
+    ) : null
   }
 
   return (
     <div className={`app-shell ${sidebarCollapsed ? 'sidebar-collapsed' : ''}`}>
-      <Sidebar active={active} collapsed={sidebarCollapsed} favorites={favorites} sites={sites} onCollapse={() => setSidebarCollapsed((value) => !value)} onNavigate={navigate} onSearch={openSearch} onManageSites={() => setSiteManagerOpen(true)} />
+      <Sidebar
+        active={active}
+        collapsed={sidebarCollapsed}
+        favorites={favorites}
+        sites={sites}
+        onCollapse={() => setSidebarCollapsed((value) => !value)}
+        onNavigate={navigate}
+        onSearch={openSearch}
+        onManageSites={() => setSiteManagerOpen(true)}
+      />
       <main className="main-panel">
         <TopBar active={active} sites={sites} onSettings={() => setSettingsOpen(true)} />
-        <div className="workspace">{renderActivePage()}</div>
+        <div className="workspace">
+          <ErrorBoundary key={`${active.type}:${'id' in active ? active.id : ''}`}>{renderActivePage()}</ErrorBoundary>
+        </div>
       </main>
-      {searchOpen && <CommandPalette query={query} searchRef={searchRef} sites={sites} onQuery={setQuery} onClose={() => setSearchOpen(false)} onNavigate={navigate} />}
-      {siteManagerOpen && <SiteManagerDialog builtInSites={SITES} customSites={customSites} onChange={updateCustomSites} onClose={() => setSiteManagerOpen(false)} />}
+      {searchOpen && (
+        <CommandPalette query={query} searchRef={searchRef} sites={sites} onQuery={setQuery} onClose={() => setSearchOpen(false)} onNavigate={navigate} />
+      )}
+      {siteManagerOpen && (
+        <SiteManagerDialog builtInSites={SITES} customSites={customSites} onChange={updateCustomSites} onClose={() => setSiteManagerOpen(false)} />
+      )}
       {settingsOpen && <SettingsDrawer data={getWorkspaceData()} theme={theme} onTheme={setTheme} onClose={() => setSettingsOpen(false)} />}
     </div>
   )

@@ -13,11 +13,46 @@ export interface FormatterDefinition {
 }
 
 export const FORMATTERS: FormatterDefinition[] = [
-  { id: 'json', name: 'JSON', description: '格式化、压缩、转义与反转义', modes: [['format', '格式化'], ['minify', '压缩'], ['escape', '转义'], ['unescape', '反转义']], placeholder: '{"name":"ToolDock","ready":true}' },
-  { id: 'xml', name: 'XML', description: '语法校验、缩进与压缩', modes: [['format', '格式化'], ['minify', '压缩']], placeholder: '<root><item id="1">内容</item></root>' },
+  {
+    id: 'json',
+    name: 'JSON',
+    description: '格式化、压缩、转义与反转义',
+    modes: [
+      ['format', '格式化'],
+      ['minify', '压缩'],
+      ['escape', '转义'],
+      ['unescape', '反转义'],
+    ],
+    placeholder: '{"name":"ToolDock","ready":true}',
+  },
+  {
+    id: 'xml',
+    name: 'XML',
+    description: '语法校验、缩进与压缩',
+    modes: [
+      ['format', '格式化'],
+      ['minify', '压缩'],
+    ],
+    placeholder: '<root><item id="1">内容</item></root>',
+  },
   { id: 'html', name: 'HTML', description: '按 HTML 语法智能排版', modes: [['format', '格式化']], placeholder: '<main><h1>ToolDock</h1><p>Hello</p></main>' },
-  { id: 'javascript', name: 'JavaScript', description: '按 JavaScript 语法智能排版', modes: [['format', '格式化']], placeholder: 'const greet=(name)=>{console.log(`Hello ${name}`)}' },
-  { id: 'yaml-properties', name: 'YAML / Properties', description: '嵌套 YAML 与点号路径 Properties 互转', modes: [['yaml-to-properties', 'YAML → Properties'], ['properties-to-yaml', 'Properties → YAML']], placeholder: 'server:\n  port: 8080\n  enabled: true' },
+  {
+    id: 'javascript',
+    name: 'JavaScript',
+    description: '按 JavaScript 语法智能排版',
+    modes: [['format', '格式化']],
+    placeholder: 'const greet=(name)=>{console.log(`Hello ${name}`)}',
+  },
+  {
+    id: 'yaml-properties',
+    name: 'YAML / Properties',
+    description: '嵌套 YAML 与点号路径 Properties 互转',
+    modes: [
+      ['yaml-to-properties', 'YAML → Properties'],
+      ['properties-to-yaml', 'Properties → YAML'],
+    ],
+    placeholder: 'server:\n  port: 8080\n  enabled: true',
+  },
 ]
 
 export async function transformFormat(language: FormatterLanguage, input: string, mode: FormatterMode): Promise<string> {
@@ -34,10 +69,7 @@ export async function transformFormat(language: FormatterLanguage, input: string
 }
 
 async function formatHtml(value: string): Promise<string> {
-  const [{ format }, { default: htmlPlugin }] = await Promise.all([
-    import('prettier/standalone'),
-    import('prettier/plugins/html'),
-  ])
+  const [{ format }, { default: htmlPlugin }] = await Promise.all([import('prettier/standalone'), import('prettier/plugins/html')])
   return format(value, { parser: 'html', plugins: [htmlPlugin], tabWidth: 2, printWidth: 100 })
 }
 
@@ -92,7 +124,10 @@ function formatXml(value: string, minify: boolean): string {
   const document = parser.parseFromString(value, 'application/xml')
   const error = document.querySelector('parsererror')
   if (error) throw new Error(`XML 语法错误：${error.textContent?.split('\n')[0] ?? '无法解析'}`)
-  return [...document.childNodes].map((node) => serializeXmlNode(node, 0, minify)).filter(Boolean).join(minify ? '' : '\n')
+  return [...document.childNodes]
+    .map((node) => serializeXmlNode(node, 0, minify))
+    .filter(Boolean)
+    .join(minify ? '' : '\n')
 }
 
 function serializeXmlNode(node: Node, depth: number, minify: boolean): string {
@@ -105,7 +140,8 @@ function serializeXmlNode(node: Node, depth: number, minify: boolean): string {
   const indent = minify ? '' : '  '.repeat(depth)
   const attributes = [...element.attributes].map((attribute) => ` ${attribute.name}="${escapeXmlAttribute(attribute.value)}"`).join('')
   if (children.length === 0) return `${indent}<${element.tagName}${attributes}/>`
-  if (children.length === 1 && children[0].nodeType === Node.TEXT_NODE) return `${indent}<${element.tagName}${attributes}>${serializer.serializeToString(children[0])}</${element.tagName}>`
+  if (children.length === 1 && children[0].nodeType === Node.TEXT_NODE)
+    return `${indent}<${element.tagName}${attributes}>${serializer.serializeToString(children[0])}</${element.tagName}>`
   const separator = minify ? '' : '\n'
   const body = children.map((child) => serializeXmlNode(child, depth + 1, minify)).join(separator)
   return `${indent}<${element.tagName}${attributes}>${separator}${body}${separator}${indent}</${element.tagName}>`
@@ -148,7 +184,10 @@ function joinPropertyLines(value: string): string[] {
     current += current ? line.trimStart() : line
     const trailingSlashes = current.match(/\\+$/)?.[0].length ?? 0
     if (trailingSlashes % 2 === 1) current = current.slice(0, -1)
-    else { output.push(current); current = '' }
+    else {
+      output.push(current)
+      current = ''
+    }
   }
   if (current) output.push(current)
   return output
@@ -179,7 +218,12 @@ function unescapeProperty(value: string): string {
 }
 
 function escapeProperty(value: string, key: boolean): string {
-  return value.replace(/\\/g, '\\\\').replace(/\t/g, '\\t').replace(/\n/g, '\\n').replace(/\r/g, '\\r').replace(key ? /([ :=#!])/g : /^([ #!])/g, '\\$1')
+  return value
+    .replace(/\\/g, '\\\\')
+    .replace(/\t/g, '\\t')
+    .replace(/\n/g, '\\n')
+    .replace(/\r/g, '\\r')
+    .replace(key ? /([ :=#!])/g : /^([ #!])/g, '\\$1')
 }
 
 function parsePropertyPath(path: string): Array<string | number> {

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { createWorkspaceBackup, parseWorkspaceBackup } from './backup-utils'
+import { createWorkspaceBackup, parseWorkspaceBackup } from './backup'
 
 describe('workspace backup', () => {
   const data = {

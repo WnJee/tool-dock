@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { createCustomSite, normalizeSiteUrl } from './site-utils'
+import { createCustomSite, normalizeSiteUrl } from './site'
 
 describe('custom site utilities', () => {
   it('normalizes site URLs and derives display data', () => {
@@ -12,5 +12,4 @@ describe('custom site utilities', () => {
       initials: '示例',
     })
   })
-
 })

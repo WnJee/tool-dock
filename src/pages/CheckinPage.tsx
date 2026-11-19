@@ -1,9 +1,9 @@
 import { useEffect, useMemo, useState } from 'react'
 import { CalendarCheck2, Check, CircleCheckBig, ExternalLink, Link2, Pencil, Plus, Search, Trash2, X } from 'lucide-react'
 import PageHeader from '../components/layout/PageHeader'
-import { getLocalDateKey, normalizeWebsiteUrl } from '../checkin-utils'
-import type { CheckinSite, DailyCompletion } from '../checkin-utils'
-import { getStoredValue } from '../storage'
+import { getLocalDateKey, normalizeWebsiteUrl } from '../lib/checkin'
+import type { CheckinSite, DailyCompletion } from '../lib/checkin'
+import { getStoredValue } from '../lib/storage'
 
 type Filter = 'pending' | 'all' | 'completed'
 
@@ -53,7 +53,7 @@ function CheckinPage() {
 
   const saveSite = (draft: Omit<CheckinSite, 'id'>) => {
     if (editingSite) {
-      setSites((current) => current.map((site) => site.id === editingSite.id ? { ...site, ...draft } : site))
+      setSites((current) => current.map((site) => (site.id === editingSite.id ? { ...site, ...draft } : site)))
     } else {
       const id = createSiteId()
       setSites((current) => [...current, { id, ...draft }])
@@ -68,48 +68,130 @@ function CheckinPage() {
     setCompletion((current) => ({ ...current, ids: current.ids.filter((id) => id !== site.id) }))
   }
 
-  const progress = sites.length === 0 ? 0 : Math.round(completedCount / sites.length * 100)
+  const progress = sites.length === 0 ? 0 : Math.round((completedCount / sites.length) * 100)
   const headerActions = (
     <div className="checkin-header-actions">
-      <button className="primary-button" onClick={() => openEditor()}><Plus size={17} /> 添加网站</button>
+      <button className="primary-button" onClick={() => openEditor()}>
+        <Plus size={17} /> 添加网站
+      </button>
     </div>
   )
   return (
     <div className="content-page checkin-page page-container">
-      <PageHeader icon={CalendarCheck2} title="每日签到" description={`${formatToday()} · 签到状态将在第二天自动重置`} color="#55caa3" action={headerActions} />
+      <PageHeader icon={CalendarCheck2} title="每日签到" description={formatToday()} color="#55caa3" action={headerActions} />
 
       <section className="checkin-summary">
-        <div className="summary-count"><span>今日进度</span><strong>{completedCount}<em>/ {sites.length}</em></strong><small>{sites.length === 0 ? '先添加需要每天签到的网站' : completedCount === sites.length ? '今天的签到已经全部完成' : `还有 ${sites.length - completedCount} 个网站待签到`}</small></div>
-        <div className="progress-area"><div className="progress-meta"><span>完成率</span><strong>{progress}%</strong></div><div className="progress-track"><span style={{ width: `${progress}%` }} /></div></div>
+        <div className="summary-count">
+          <span>今日进度</span>
+          <strong>
+            {completedCount}
+            <em>/ {sites.length}</em>
+          </strong>
+          <small>
+            {sites.length === 0
+              ? '先添加需要每天签到的网站'
+              : completedCount === sites.length
+                ? '今天的签到已经全部完成'
+                : `还有 ${sites.length - completedCount} 个网站待签到`}
+          </small>
+        </div>
+        <div className="progress-area">
+          <div className="progress-meta">
+            <span>完成率</span>
+            <strong>{progress}%</strong>
+          </div>
+          <div className="progress-track">
+            <span style={{ width: `${progress}%` }} />
+          </div>
+        </div>
         <CircleCheckBig className={completedCount > 0 && completedCount === sites.length ? 'complete' : ''} size={48} />
       </section>
 
       <section className="checkin-list-panel">
         <div className="checkin-toolbar">
           <div className="segmented checkin-filters">
-            <button className={filter === 'pending' ? 'active' : ''} onClick={() => setFilter('pending')}>待签到 {sites.length - completedCount}</button>
-            <button className={filter === 'all' ? 'active' : ''} onClick={() => setFilter('all')}>全部 {sites.length}</button>
-            <button className={filter === 'completed' ? 'active' : ''} onClick={() => setFilter('completed')}>已完成 {completedCount}</button>
+            <button className={filter === 'pending' ? 'active' : ''} onClick={() => setFilter('pending')}>
+              待签到 {sites.length - completedCount}
+            </button>
+            <button className={filter === 'all' ? 'active' : ''} onClick={() => setFilter('all')}>
+              全部 {sites.length}
+            </button>
+            <button className={filter === 'completed' ? 'active' : ''} onClick={() => setFilter('completed')}>
+              已完成 {completedCount}
+            </button>
           </div>
-          <label className="checkin-search"><Search size={15} /><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="搜索网站或备注" /></label>
+          <label className="checkin-search">
+            <Search size={15} />
+            <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="搜索网站或备注" />
+          </label>
         </div>
-        <div className="checkin-list-header"><span>状态</span><span>网站</span><span>备注</span><span>操作</span></div>
+        <div className="checkin-list-header">
+          <span>状态</span>
+          <span>网站</span>
+          <span>备注</span>
+          <span>操作</span>
+        </div>
         <div className="checkin-list">
           {visibleSites.map((site) => {
             const isCompleted = completed.has(site.id)
             return (
               <div className={`checkin-row ${isCompleted ? 'completed' : ''}`} key={site.id}>
-                <label className="check-control"><input type="checkbox" checked={isCompleted} onChange={() => toggleCompleted(site.id)} aria-label={`标记 ${site.name} 今日已签到`} /><span><Check size={14} /></span></label>
-                <div className="checkin-site"><span className="checkin-avatar">{getInitials(site.name)}</span><div><strong>{site.name}</strong><a href={site.url} target="_blank" rel="noreferrer">{site.url}</a></div></div>
+                <label className="check-control">
+                  <input type="checkbox" checked={isCompleted} onChange={() => toggleCompleted(site.id)} aria-label={`标记 ${site.name} 今日已签到`} />
+                  <span>
+                    <Check size={14} />
+                  </span>
+                </label>
+                <div className="checkin-site">
+                  <span className="checkin-avatar">{getInitials(site.name)}</span>
+                  <div>
+                    <strong>{site.name}</strong>
+                    <a href={site.url} target="_blank" rel="noreferrer">
+                      {site.url}
+                    </a>
+                  </div>
+                </div>
                 <span className="checkin-note">{site.note || '—'}</span>
-                <div className="checkin-actions"><button className="icon-button subtle" onClick={() => openEditor(site)} title="编辑"><Pencil size={15} /></button><button className="icon-button subtle danger" onClick={() => deleteSite(site)} title="删除"><Trash2 size={15} /></button><a className="checkin-open" href={site.url} target="_blank" rel="noreferrer"><ExternalLink size={15} /> 去签到</a></div>
+                <div className="checkin-actions">
+                  <button className="icon-button subtle" onClick={() => openEditor(site)} title="编辑">
+                    <Pencil size={15} />
+                  </button>
+                  <button className="icon-button subtle danger" onClick={() => deleteSite(site)} title="删除">
+                    <Trash2 size={15} />
+                  </button>
+                  <a className="checkin-open" href={site.url} target="_blank" rel="noreferrer">
+                    <ExternalLink size={15} /> 去签到
+                  </a>
+                </div>
               </div>
             )
           })}
-          {visibleSites.length === 0 && <div className="checkin-empty"><CalendarCheck2 size={32} /><strong>{sites.length === 0 ? '还没有签到网站' : filter === 'pending' && completedCount === sites.length ? '今天已全部签到' : '没有匹配的网站'}</strong><span>{sites.length === 0 ? '添加后会一直保存在当前浏览器中' : '可以切换筛选条件查看其他网站'}</span>{sites.length === 0 && <button onClick={() => openEditor()}><Plus size={15} /> 添加第一个网站</button>}</div>}
+          {visibleSites.length === 0 && (
+            <div className="checkin-empty">
+              <CalendarCheck2 size={32} />
+              <strong>
+                {sites.length === 0 ? '还没有签到网站' : filter === 'pending' && completedCount === sites.length ? '今天已全部签到' : '没有匹配的网站'}
+              </strong>
+              <span>{sites.length === 0 ? '添加后会一直保存在当前浏览器中' : '可以切换筛选条件查看其他网站'}</span>
+              {sites.length === 0 && (
+                <button onClick={() => openEditor()}>
+                  <Plus size={15} /> 添加第一个网站
+                </button>
+              )}
+            </div>
+          )}
         </div>
       </section>
-      {editorOpen && <SiteEditor site={editingSite} onClose={() => { setEditorOpen(false); setEditingSite(null) }} onSave={saveSite} />}
+      {editorOpen && (
+        <SiteEditor
+          site={editingSite}
+          onClose={() => {
+            setEditorOpen(false)
+            setEditingSite(null)
+          }}
+          onSave={saveSite}
+        />
+      )}
     </div>
   )
 }
@@ -121,7 +203,10 @@ function SiteEditor({ site, onClose, onSave }: { site: CheckinSite | null; onClo
   const [error, setError] = useState('')
   const submit = (event: React.FormEvent) => {
     event.preventDefault()
-    if (!name.trim()) { setError('请输入网站名称'); return }
+    if (!name.trim()) {
+      setError('请输入网站名称')
+      return
+    }
     try {
       onSave({ name: name.trim(), url: normalizeWebsiteUrl(url), note: note.trim() })
     } catch (caught) {
@@ -131,12 +216,41 @@ function SiteEditor({ site, onClose, onSave }: { site: CheckinSite | null; onClo
   return (
     <div className="dialog-backdrop" onMouseDown={onClose}>
       <form className="site-editor" onSubmit={submit} onMouseDown={(event) => event.stopPropagation()}>
-        <div className="dialog-heading"><div><strong>{site ? '编辑签到网站' : '添加签到网站'}</strong><span>信息只保存在当前浏览器</span></div><button type="button" onClick={onClose} aria-label="关闭"><X size={18} /></button></div>
-        <label><span>网站名称</span><input autoFocus value={name} onChange={(event) => setName(event.target.value)} placeholder="例如：阿里云社区" /></label>
-        <label><span>网站地址</span><div className="url-input"><Link2 size={15} /><input value={url} onChange={(event) => setUrl(event.target.value)} placeholder="https://example.com/checkin" /></div></label>
-        <label><span>备注 <em>选填</em></span><input value={note} onChange={(event) => setNote(event.target.value)} placeholder="例如：领取每日积分" /></label>
+        <div className="dialog-heading">
+          <div>
+            <strong>{site ? '编辑签到网站' : '添加签到网站'}</strong>
+            <span>信息只保存在当前浏览器</span>
+          </div>
+          <button type="button" onClick={onClose} aria-label="关闭">
+            <X size={18} />
+          </button>
+        </div>
+        <label>
+          <span>网站名称</span>
+          <input autoFocus value={name} onChange={(event) => setName(event.target.value)} placeholder="例如：阿里云社区" />
+        </label>
+        <label>
+          <span>网站地址</span>
+          <div className="url-input">
+            <Link2 size={15} />
+            <input value={url} onChange={(event) => setUrl(event.target.value)} placeholder="https://example.com/checkin" />
+          </div>
+        </label>
+        <label>
+          <span>
+            备注 <em>选填</em>
+          </span>
+          <input value={note} onChange={(event) => setNote(event.target.value)} placeholder="例如：领取每日积分" />
+        </label>
         {error && <div className="form-error">{error}</div>}
-        <div className="dialog-actions"><button type="button" onClick={onClose}>取消</button><button type="submit" className="primary-button">{site ? '保存修改' : '添加网站'}</button></div>
+        <div className="dialog-actions">
+          <button type="button" onClick={onClose}>
+            取消
+          </button>
+          <button type="submit" className="primary-button">
+            {site ? '保存修改' : '添加网站'}
+          </button>
+        </div>
       </form>
     </div>
   )

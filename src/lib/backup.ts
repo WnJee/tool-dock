@@ -1,7 +1,7 @@
-import { normalizeWebsiteUrl } from './checkin-utils'
-import type { CheckinSite, DailyCompletion } from './checkin-utils'
-import { createCustomSite } from './site-utils'
-import type { ActiveView, SiteDefinition } from './types'
+import { normalizeWebsiteUrl } from './checkin'
+import type { CheckinSite, DailyCompletion } from './checkin'
+import { createCustomSite } from './site'
+import type { ActiveView, SiteDefinition } from '../types'
 
 export interface WorkspaceData {
   theme: 'dark' | 'light'
@@ -67,7 +67,8 @@ export function restoreWorkspaceBackup(backup: WorkspaceBackup, storage: Storage
 function parseActiveView(value: unknown): ActiveView {
   if (!isRecord(value) || typeof value.type !== 'string') throw new Error('备份中的当前页面无效')
   if (value.type === 'home' || value.type === 'checkin' || value.type === 'movies' || value.type === 'tv') return { type: value.type }
-  if (value.type === 'tool' && (value.id === 'crypto' || value.id === 'json' || value.id === 'timestamp' || value.id === 'random')) return { type: 'tool', id: value.id }
+  if (value.type === 'tool' && (value.id === 'crypto' || value.id === 'json' || value.id === 'timestamp' || value.id === 'random'))
+    return { type: 'tool', id: value.id }
   if (value.type === 'site' && isNonEmptyString(value.id)) return { type: 'site', id: value.id.trim() }
   throw new Error('备份中的当前页面无效')
 }
@@ -76,7 +77,14 @@ function parseCustomSites(value: unknown): SiteDefinition[] {
   if (!Array.isArray(value)) throw new Error('备份中的自定义常用网站无效')
   const seenIds = new Set<string>()
   return value.map((site, index) => {
-    if (!isRecord(site) || !isNonEmptyString(site.id) || !isNonEmptyString(site.name) || typeof site.description !== 'string' || typeof site.url !== 'string' || typeof site.color !== 'string') {
+    if (
+      !isRecord(site) ||
+      !isNonEmptyString(site.id) ||
+      !isNonEmptyString(site.name) ||
+      typeof site.description !== 'string' ||
+      typeof site.url !== 'string' ||
+      typeof site.color !== 'string'
+    ) {
       throw new Error(`第 ${index + 1} 个自定义常用网站的数据不完整`)
     }
     const id = site.id.trim()
@@ -100,10 +108,16 @@ function parseCheckins(value: unknown): WorkspaceData['checkins'] {
   })
   const completion = value.completion
   if (typeof completion.date !== 'string' || !Array.isArray(completion.ids)) throw new Error('备份中的签到状态无效')
-  const ids = [...new Set(completion.ids.map((id) => {
-    if (typeof id !== 'string') throw new Error('备份中的签到状态无效')
-    return id
-  }).filter((id) => seenIds.has(id)))]
+  const ids = [
+    ...new Set(
+      completion.ids
+        .map((id) => {
+          if (typeof id !== 'string') throw new Error('备份中的签到状态无效')
+          return id
+        })
+        .filter((id) => seenIds.has(id)),
+    ),
+  ]
   return { sites, completion: { date: completion.date, ids } }
 }
 

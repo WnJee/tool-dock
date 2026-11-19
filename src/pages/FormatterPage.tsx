@@ -1,9 +1,10 @@
 import { useEffect, useMemo, useState } from 'react'
-import { ArrowLeftRight, Braces, ShieldCheck, Star, Zap } from 'lucide-react'
-import PageHeader from '../components/layout/PageHeader'
+import { ArrowLeftRight } from 'lucide-react'
+import { SegmentedControl, Tabs, ToolPageShell, ToolToolbar } from '../components/common'
 import EditorPanel from '../components/tools/EditorPanel'
 import JsonOutputPanel, { type JsonView } from '../components/tools/JsonOutputPanel'
-import { FORMATTERS, transformFormat, type FormatterLanguage, type FormatterMode } from '../formatter-utils'
+import { useClipboard } from '../hooks/useClipboard'
+import { FORMATTERS, transformFormat, type FormatterLanguage, type FormatterMode } from '../lib/formatter'
 import type { ToolDefinition } from '../types'
 
 interface FormatterPageProps {
@@ -12,6 +13,8 @@ interface FormatterPageProps {
   onFavorite: () => void
 }
 
+const LANGUAGE_TABS = FORMATTERS.map((item) => ({ id: item.id, label: item.name }))
+
 export default function FormatterPage({ tool, favorite, onFavorite }: FormatterPageProps) {
   const [language, setLanguage] = useState<FormatterLanguage>('json')
   const definition = useMemo(() => FORMATTERS.find((item) => item.id === language)!, [language])
@@ -19,8 +22,8 @@ export default function FormatterPage({ tool, favorite, onFavorite }: FormatterP
   const [input, setInput] = useState('{"name":"ToolDock","private":true,"features":["JSON","XML","HTML","JavaScript"]}')
   const [output, setOutput] = useState('')
   const [error, setError] = useState('')
-  const [copied, setCopied] = useState(false)
   const [jsonView, setJsonView] = useState<JsonView>('tree')
+  const { copied, copy } = useClipboard()
 
   useEffect(() => {
     setMode(definition.modes[0][0])
@@ -32,29 +35,36 @@ export default function FormatterPage({ tool, favorite, onFavorite }: FormatterP
     if (!input.trim()) {
       setOutput('')
       setError('')
-      return () => { active = false }
-    }
-    const timer = window.setTimeout(async () => {
-      try {
-        const result = await transformFormat(language, input, mode)
-        if (active) { setOutput(result); setError('') }
-      } catch (caught) {
-        if (active) { setOutput(''); setError(caught instanceof Error ? caught.message : '处理失败，请检查输入') }
+      return () => {
+        active = false
       }
-    }, language === 'html' || language === 'javascript' ? 120 : 0)
-    return () => { active = false; window.clearTimeout(timer) }
+    }
+    const timer = window.setTimeout(
+      async () => {
+        try {
+          const result = await transformFormat(language, input, mode)
+          if (active) {
+            setOutput(result)
+            setError('')
+          }
+        } catch (caught) {
+          if (active) {
+            setOutput('')
+            setError(caught instanceof Error ? caught.message : '处理失败，请检查输入')
+          }
+        }
+      },
+      language === 'html' || language === 'javascript' ? 120 : 0,
+    )
+    return () => {
+      active = false
+      window.clearTimeout(timer)
+    }
   }, [input, language, mode])
 
   useEffect(() => {
     if (language !== 'json' || mode !== 'format') setJsonView('text')
   }, [language, mode])
-
-  async function copyOutput() {
-    if (!output) return
-    await navigator.clipboard.writeText(output)
-    setCopied(true)
-    window.setTimeout(() => setCopied(false), 1200)
-  }
 
   function swap() {
     const inverse = getInverseMode(language, mode)
@@ -64,26 +74,52 @@ export default function FormatterPage({ tool, favorite, onFavorite }: FormatterP
   }
 
   const inverseMode = getInverseMode(language, mode)
-  const favoriteAction = <button className={`favorite-button ${favorite ? 'active' : ''}`} onClick={onFavorite}><Star size={16} fill={favorite ? 'currentColor' : 'none'} /> {favorite ? '已收藏' : '收藏'}</button>
+  const copyOutput = () => void copy(output, 'output')
   return (
-    <div className="content-page tool-page page-container formatter-page">
-      <PageHeader icon={tool.icon} title={tool.name} description={`${definition.name} · ${definition.description} · 仅在当前浏览器处理`} color={tool.color} action={favoriteAction} />
-      <div className="crypto-toolbar formatter-toolbar">
-        <div className="crypto-algorithm-tabs formatter-language-tabs" role="tablist" aria-label="文件类型">
-          {FORMATTERS.map((item) => <button key={item.id} type="button" role="tab" aria-selected={language === item.id} className={language === item.id ? 'active' : ''} onClick={() => setLanguage(item.id)}>{item.name}</button>)}
-        </div>
-        <div className="crypto-controls formatter-controls">
-          <div className="segmented formatter-modes">{definition.modes.map(([value, label]) => <button key={value} className={mode === value ? 'active' : ''} onClick={() => setMode(value)}>{label}</button>)}</div>
-          <div className="toolbar-hint"><Zap size={14} /> 输入后自动处理</div>
-        </div>
-      </div>
+    <ToolPageShell
+      tool={tool}
+      favorite={favorite}
+      onFavorite={onFavorite}
+      className="formatter-page"
+      description={`${definition.name} · ${definition.description}`}
+    >
+      <ToolToolbar
+        tabs={<Tabs items={LANGUAGE_TABS} value={language} onChange={setLanguage} label="文件类型" className="formatter-language-tabs" />}
+        controls={<SegmentedControl value={mode} options={definition.modes} onChange={setMode} label="处理方式" className="formatter-modes" />}
+        className="formatter-toolbar"
+        controlsClassName="formatter-controls"
+      />
       <div className="editor-grid">
-        <EditorPanel title={getInputTitle(language, mode)} value={input} placeholder={definition.placeholder} onChange={setInput} onClear={() => setInput('')} />
-        <button className="swap-button" onClick={swap} disabled={!output || !inverseMode} title={inverseMode ? '将结果放回输入区并切换方向' : '当前操作无反向模式'}><ArrowLeftRight size={17} /></button>
-        {language === 'json' && mode === 'format' && output && !error ? <JsonOutputPanel value={output} view={jsonView} onView={setJsonView} onCopy={copyOutput} copied={copied} /> : <EditorPanel title={getOutputTitle(language, mode)} value={output} placeholder="处理结果会实时显示在这里" readOnly error={error} onCopy={copyOutput} copied={copied} />}
+        <EditorPanel
+          title={getInputTitle(language, mode)}
+          value={input}
+          placeholder={definition.placeholder}
+          onChange={setInput}
+          onClear={() => setInput('')}
+        />
+        <button
+          className="swap-button"
+          onClick={swap}
+          disabled={!output || !inverseMode}
+          title={inverseMode ? '将结果放回输入区并切换方向' : '当前操作无反向模式'}
+        >
+          <ArrowLeftRight size={17} />
+        </button>
+        {language === 'json' && mode === 'format' && output && !error ? (
+          <JsonOutputPanel value={output} view={jsonView} onView={setJsonView} onCopy={copyOutput} copied={copied === 'output'} />
+        ) : (
+          <EditorPanel
+            title={getOutputTitle(language, mode)}
+            value={output}
+            placeholder="处理结果会实时显示在这里"
+            readOnly
+            error={error}
+            onCopy={copyOutput}
+            copied={copied === 'output'}
+          />
+        )}
       </div>
-      <div className="shortcut-strip"><span><Braces size={13} /> {language === 'yaml-properties' ? '嵌套路径使用点号，数组使用 [0]' : '格式化前会执行语法校验'}</span><span>·</span><span className="privacy-inline"><ShieldCheck size={13} /> 本地计算</span></div>
-    </div>
+    </ToolPageShell>
   )
 }
 

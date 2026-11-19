@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { getLocalDateKey, normalizeWebsiteUrl } from './checkin-utils'
+import { getLocalDateKey, normalizeWebsiteUrl } from './checkin'
 
 describe('check-in helpers', () => {
   it('normalizes common website addresses', () => {

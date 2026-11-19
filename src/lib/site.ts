@@ -1,4 +1,4 @@
-import type { SiteDefinition } from './types'
+import type { SiteDefinition } from '../types'
 
 export const CUSTOM_SITE_COLORS = ['#6f8cff', '#55caa3', '#8b7bea', '#eea853', '#e8799f', '#45b7d1']
 

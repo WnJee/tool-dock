@@ -91,7 +91,13 @@ export async function searchTvShows(filters: MovieFilters, page: number, signal?
   return searchMedia('/api/tv', filters, page, signal, '电视剧数据加载失败')
 }
 
-async function searchMedia(endpoint: string, filters: MovieFilters, page: number, signal: AbortSignal | undefined, fallbackError: string): Promise<MovieSearchResponse> {
+async function searchMedia(
+  endpoint: string,
+  filters: MovieFilters,
+  page: number,
+  signal: AbortSignal | undefined,
+  fallbackError: string,
+): Promise<MovieSearchResponse> {
   const params = new URLSearchParams({
     page: String(page),
     query: filters.query.trim(),
@@ -104,7 +110,7 @@ async function searchMedia(endpoint: string, filters: MovieFilters, page: number
     sort: filters.sort,
   })
   const response = await fetch(`${endpoint}?${params}`, { signal })
-  const body = await response.json().catch(() => null) as MovieSearchResponse | { error?: string } | null
+  const body = (await response.json().catch(() => null)) as MovieSearchResponse | { error?: string } | null
   if (!response.ok) throw new Error(body && 'error' in body && body.error ? body.error : fallbackError)
   return body as MovieSearchResponse
 }

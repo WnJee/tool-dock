@@ -6,26 +6,31 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
-    "deploy:pages": "bash scripts/deploy-pages.sh",
+    "typecheck": "tsc -b",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "verify": "npm run typecheck && npm run test && vite build",
     "preview": "vite preview",
-    "test": "vitest run"
+    "deploy:pages": "bash scripts/deploy-pages.sh"
   },
   "dependencies": {
     "@noble/ciphers": "^2.2.0",
-    "@vitejs/plugin-react": "latest",
     "js-yaml": "^5.2.2",
     "lucide-react": "latest",
-    "prettier": "^3.9.6",
     "react": "latest",
     "react-dom": "latest",
-    "sm-crypto": "^0.5.5",
-    "vite": "latest"
+    "sm-crypto": "^0.5.5"
   },
   "devDependencies": {
     "@types/js-yaml": "^4.0.9",
     "@types/react": "latest",
     "@types/react-dom": "latest",
+    "@vitejs/plugin-react": "latest",
+    "prettier": "^3.9.6",
     "typescript": "latest",
+    "vite": "latest",
     "vitest": "latest",
     "wrangler": "^4.112.0"
   }

@@ -23,8 +23,13 @@ export function parseTimestampInput(value: string): Date {
     const [, year, month, day, hour = '0', minute = '0', second = '0', millisecond = '0'] = localMatch
     const parts = [year, month, day, hour, minute, second].map(Number)
     const date = new Date(parts[0], parts[1] - 1, parts[2], parts[3], parts[4], parts[5], Number(millisecond.padEnd(3, '0')))
-    const matchesInput = date.getFullYear() === parts[0] && date.getMonth() === parts[1] - 1 && date.getDate() === parts[2]
-      && date.getHours() === parts[3] && date.getMinutes() === parts[4] && date.getSeconds() === parts[5]
+    const matchesInput =
+      date.getFullYear() === parts[0] &&
+      date.getMonth() === parts[1] - 1 &&
+      date.getDate() === parts[2] &&
+      date.getHours() === parts[3] &&
+      date.getMinutes() === parts[4] &&
+      date.getSeconds() === parts[5]
     if (!matchesInput) throw new Error('日期或时间超出有效范围')
     return date
   }

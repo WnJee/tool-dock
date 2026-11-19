@@ -62,7 +62,11 @@ export async function onRequestGet({ request, env }: Context): Promise<Response>
     const params: Record<string, string | number> = useTitleSearch
       ? { query, language: 'zh-CN', include_adult: 'false', page, ...(region ? { region } : {}) }
       : {
-          language: 'zh-CN', include_adult: 'false', include_video: 'false', page, sort_by: sort,
+          language: 'zh-CN',
+          include_adult: 'false',
+          include_video: 'false',
+          page,
+          sort_by: sort,
           ...(personId ? { with_people: personId } : {}),
           ...(genre ? { with_genres: genre } : {}),
           ...(region ? { with_origin_country: region } : {}),
@@ -81,12 +85,14 @@ export async function onRequestGet({ request, env }: Context): Promise<Response>
       }
       results = results.filter((movie) => {
         const releaseYear = Number(movie.release_date?.slice(0, 4))
-        return (!personMovieIds || personMovieIds.has(movie.id))
-          && (!genre || movie.genre_ids?.includes(Number(genre)))
-          && (!region || movie.origin_country?.includes(region))
-          && (!yearFrom || releaseYear >= yearFrom)
-          && (!yearTo || releaseYear <= yearTo)
-          && (!rating || (movie.vote_average ?? 0) >= rating)
+        return (
+          (!personMovieIds || personMovieIds.has(movie.id)) &&
+          (!genre || movie.genre_ids?.includes(Number(genre))) &&
+          (!region || movie.origin_country?.includes(region)) &&
+          (!yearFrom || releaseYear >= yearFrom) &&
+          (!yearTo || releaseYear <= yearTo) &&
+          (!rating || (movie.vote_average ?? 0) >= rating)
+        )
       })
       results.sort(movieSorter(sort))
     }
@@ -142,5 +148,8 @@ function clampNumber(value: string | null, min: number, max: number, fallback?: 
 }
 
 function json(body: unknown, status = 200) {
-  return new Response(JSON.stringify(body), { status, headers: { 'content-type': 'application/json; charset=utf-8', 'cache-control': status === 200 ? 'public, max-age=300' : 'no-store' } })
+  return new Response(JSON.stringify(body), {
+    status,
+    headers: { 'content-type': 'application/json; charset=utf-8', 'cache-control': status === 200 ? 'public, max-age=300' : 'no-store' },
+  })
 }

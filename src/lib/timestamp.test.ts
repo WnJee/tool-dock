@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { adjustTimestamp, formatTimestampInput, getTimestampValues, parseTimestampInput } from './timestamp-utils'
+import { adjustTimestamp, formatTimestampInput, getTimestampValues, parseTimestampInput } from './timestamp'
 
 describe('timestamp input parsing', () => {
   it('recognizes seconds, milliseconds and microseconds', () => {

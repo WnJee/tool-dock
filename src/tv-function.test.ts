@@ -11,29 +11,36 @@ describe('TV Pages Function', () => {
   })
 
   it('maps TMDB discover results and TV-specific filters', async () => {
-    const fetchMock = vi.fn().mockResolvedValue(new Response(JSON.stringify({
-      page: 1,
-      total_pages: 8,
-      total_results: 150,
-      results: [{
-        id: 1396,
-        name: '绝命毒师',
-        original_name: 'Breaking Bad',
-        overview: '简介',
-        poster_path: '/poster.jpg',
-        first_air_date: '2008-01-20',
-        vote_average: 8.9,
-        vote_count: 16000,
-        genre_ids: [18],
-      }],
-    }), { status: 200 }))
+    const fetchMock = vi.fn().mockResolvedValue(
+      new Response(
+        JSON.stringify({
+          page: 1,
+          total_pages: 8,
+          total_results: 150,
+          results: [
+            {
+              id: 1396,
+              name: '绝命毒师',
+              original_name: 'Breaking Bad',
+              overview: '简介',
+              poster_path: '/poster.jpg',
+              first_air_date: '2008-01-20',
+              vote_average: 8.9,
+              vote_count: 16000,
+              genre_ids: [18],
+            },
+          ],
+        }),
+        { status: 200 },
+      ),
+    )
     vi.stubGlobal('fetch', fetchMock)
 
     const response = await onRequestGet({
       request: new Request('https://example.com/api/tv?genre=18&region=US&yearFrom=2000&rating=8&sort=primary_release_date.desc'),
       env: { TMDB_READ_TOKEN: 'token' },
     })
-    const body = await response.json() as { totalResults: number; results: Array<{ title: string; releaseDate: string }> }
+    const body = (await response.json()) as { totalResults: number; results: Array<{ title: string; releaseDate: string }> }
 
     expect(response.status).toBe(200)
     expect(body.totalResults).toBe(150)
@@ -47,19 +54,24 @@ describe('TV Pages Function', () => {
   })
 
   it('uses TV credits for person-only filtering', async () => {
-    const fetchMock = vi.fn()
+    const fetchMock = vi
+      .fn()
       .mockResolvedValueOnce(new Response(JSON.stringify({ results: [{ id: 42, name: '演员甲' }] })))
-      .mockResolvedValueOnce(new Response(JSON.stringify({
-        cast: [{ id: 1, name: '匹配剧集', first_air_date: '2024-01-01', origin_country: ['CN'], genre_ids: [18], vote_average: 8.2, popularity: 20 }],
-        crew: [],
-      })))
+      .mockResolvedValueOnce(
+        new Response(
+          JSON.stringify({
+            cast: [{ id: 1, name: '匹配剧集', first_air_date: '2024-01-01', origin_country: ['CN'], genre_ids: [18], vote_average: 8.2, popularity: 20 }],
+            crew: [],
+          }),
+        ),
+      )
     vi.stubGlobal('fetch', fetchMock)
 
     const response = await onRequestGet({
       request: new Request('https://example.com/api/tv?person=演员甲&region=CN&genre=18&rating=8'),
       env: { TMDB_API_KEY: 'key' },
     })
-    const body = await response.json() as { totalResults: number; matchedPerson: string; results: Array<{ title: string }> }
+    const body = (await response.json()) as { totalResults: number; matchedPerson: string; results: Array<{ title: string }> }
 
     expect(body).toMatchObject({ totalResults: 1, matchedPerson: '演员甲' })
     expect(body.results[0].title).toBe('匹配剧集')

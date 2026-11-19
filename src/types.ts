@@ -1,6 +1,6 @@
 import type { LucideIcon } from 'lucide-react'
 
-export type ToolId = 'crypto' | 'json' | 'timestamp' | 'random'
+export type ToolId = 'crypto' | 'json' | 'timestamp' | 'random' | 'image' | 'text'
 
 export interface ToolDefinition {
   id: ToolId
@@ -21,9 +21,4 @@ export interface SiteDefinition {
 }
 
 export type ActiveView =
-  | { type: 'home' }
-  | { type: 'checkin' }
-  | { type: 'movies' }
-  | { type: 'tv' }
-  | { type: 'tool'; id: ToolId }
-  | { type: 'site'; id: string }
+  { type: 'home' } | { type: 'checkin' } | { type: 'movies' } | { type: 'tv' } | { type: 'tool'; id: ToolId } | { type: 'site'; id: string }

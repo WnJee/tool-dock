@@ -17,19 +17,100 @@ export interface CryptoAlgorithmDefinition {
 export const CRYPTO_GROUPS: CryptoGroup[] = ['编码 / 解码', '哈希摘要', '对称加密']
 
 export const CRYPTO_ALGORITHMS: CryptoAlgorithmDefinition[] = [
-  { id: 'base64', name: 'Base64', group: '编码 / 解码', description: 'Unicode 安全的通用文本编码', modes: [['encode', '编码'], ['decode', '解码']] },
-  { id: 'base58', name: 'Base58', group: '编码 / 解码', description: '移除易混淆字符，常用于短标识', modes: [['encode', '编码'], ['decode', '解码']] },
-  { id: 'base32', name: 'Base32', group: '编码 / 解码', description: '仅使用大写字母和 2-7 的编码', modes: [['encode', '编码'], ['decode', '解码']] },
-  { id: 'hex', name: 'Hex', group: '编码 / 解码', description: '文本与十六进制字节互转', modes: [['encode', '编码'], ['decode', '解码']] },
-  { id: 'url', name: 'URL', group: '编码 / 解码', description: '查询参数与特殊字符编解码', modes: [['encode', '编码'], ['decode', '解码']] },
-  { id: 'base64url', name: 'Base64URL', group: '编码 / 解码', description: '适用于 URL 和文件名的 Base64 变体', modes: [['encode', '编码'], ['decode', '解码']] },
+  {
+    id: 'base64',
+    name: 'Base64',
+    group: '编码 / 解码',
+    description: 'Unicode 安全的通用文本编码',
+    modes: [
+      ['encode', '编码'],
+      ['decode', '解码'],
+    ],
+  },
+  {
+    id: 'base58',
+    name: 'Base58',
+    group: '编码 / 解码',
+    description: '移除易混淆字符，常用于短标识',
+    modes: [
+      ['encode', '编码'],
+      ['decode', '解码'],
+    ],
+  },
+  {
+    id: 'base32',
+    name: 'Base32',
+    group: '编码 / 解码',
+    description: '仅使用大写字母和 2-7 的编码',
+    modes: [
+      ['encode', '编码'],
+      ['decode', '解码'],
+    ],
+  },
+  {
+    id: 'hex',
+    name: 'Hex',
+    group: '编码 / 解码',
+    description: '文本与十六进制字节互转',
+    modes: [
+      ['encode', '编码'],
+      ['decode', '解码'],
+    ],
+  },
+  {
+    id: 'url',
+    name: 'URL',
+    group: '编码 / 解码',
+    description: '查询参数与特殊字符编解码',
+    modes: [
+      ['encode', '编码'],
+      ['decode', '解码'],
+    ],
+  },
+  {
+    id: 'base64url',
+    name: 'Base64URL',
+    group: '编码 / 解码',
+    description: '适用于 URL 和文件名的 Base64 变体',
+    modes: [
+      ['encode', '编码'],
+      ['decode', '解码'],
+    ],
+  },
   { id: 'md5', name: 'MD5', group: '哈希摘要', description: '兼容性摘要，不适合密码保护', modes: [['hash', '生成摘要']] },
   { id: 'sha1', name: 'SHA-1', group: '哈希摘要', description: '旧式 160 位摘要，不建议用于安全场景', modes: [['hash', '生成摘要']] },
   { id: 'sha256', name: 'SHA-256', group: '哈希摘要', description: '常用的 256 位安全摘要', modes: [['hash', '生成摘要']] },
   { id: 'sha512', name: 'SHA-512', group: '哈希摘要', description: '512 位安全摘要', modes: [['hash', '生成摘要']] },
-  { id: 'aes', name: 'AES-GCM', group: '对称加密', description: '带完整性校验的 AES-256 加密', modes: [['encrypt', '加密'], ['decrypt', '解密']] },
-  { id: 'chacha20', name: 'ChaCha20', group: '对称加密', description: 'ChaCha20-Poly1305 认证加密', modes: [['encrypt', '加密'], ['decrypt', '解密']] },
-  { id: 'sm4', name: 'SM4', group: '对称加密', description: 'SM4-CBC 与 HMAC-SHA256 完整性校验', modes: [['encrypt', '加密'], ['decrypt', '解密']] },
+  {
+    id: 'aes',
+    name: 'AES-GCM',
+    group: '对称加密',
+    description: '带完整性校验的 AES-256 加密',
+    modes: [
+      ['encrypt', '加密'],
+      ['decrypt', '解密'],
+    ],
+  },
+  {
+    id: 'chacha20',
+    name: 'ChaCha20',
+    group: '对称加密',
+    description: 'ChaCha20-Poly1305 认证加密',
+    modes: [
+      ['encrypt', '加密'],
+      ['decrypt', '解密'],
+    ],
+  },
+  {
+    id: 'sm4',
+    name: 'SM4',
+    group: '对称加密',
+    description: 'SM4-CBC 与 HMAC-SHA256 完整性校验',
+    modes: [
+      ['encrypt', '加密'],
+      ['decrypt', '解密'],
+    ],
+  },
 ]
 
 const BASE32_ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567'
@@ -63,7 +144,10 @@ export function encodeBase64Url(value: string): string {
 export function decodeBase64Url(value: string): string {
   const normalized = value.trim().replace(/\s/g, '').replace(/=+$/, '')
   if (!/^[A-Za-z0-9_-]*$/.test(normalized) || normalized.length % 4 === 1) throw new Error('无效的 Base64URL 内容')
-  const base64 = normalized.replace(/-/g, '+').replace(/_/g, '/').padEnd(Math.ceil(normalized.length / 4) * 4, '=')
+  const base64 = normalized
+    .replace(/-/g, '+')
+    .replace(/_/g, '/')
+    .padEnd(Math.ceil(normalized.length / 4) * 4, '=')
   try {
     return decodeBase64(base64)
   } catch {
@@ -143,10 +227,19 @@ export function md5(value: string): string {
     for (let index = 0; index < 64; index += 1) {
       let f: number
       let word: number
-      if (index < 16) { f = (b & c) | (~b & d); word = index }
-      else if (index < 32) { f = (d & b) | (~d & c); word = (5 * index + 1) % 16 }
-      else if (index < 48) { f = b ^ c ^ d; word = (3 * index + 5) % 16 }
-      else { f = c ^ (b | ~d); word = (7 * index) % 16 }
+      if (index < 16) {
+        f = (b & c) | (~b & d)
+        word = index
+      } else if (index < 32) {
+        f = (d & b) | (~d & c)
+        word = (5 * index + 1) % 16
+      } else if (index < 48) {
+        f = b ^ c ^ d
+        word = (3 * index + 5) % 16
+      } else {
+        f = c ^ (b | ~d)
+        word = (7 * index) % 16
+      }
       const sum = (a + f + constants[index] + view.getUint32(offset + word * 4, true)) >>> 0
       const shift = shifts[Math.floor(index / 16) * 4 + (index % 4)]
       const rotated = ((sum << shift) | (sum >>> (32 - shift))) >>> 0
@@ -241,7 +334,7 @@ async function decryptSm4(value: string, password: string): Promise<string> {
     const keyMaterial = await deriveKeyBytes(password, salt, 384)
     const encryptionKey = keyMaterial.slice(0, 16)
     const authenticationKey = keyMaterial.slice(16)
-    if (!await verifyHmac(authenticationKey, joinBytes(salt, iv, encrypted), tag)) throw new Error('invalid tag')
+    if (!(await verifyHmac(authenticationKey, joinBytes(salt, iv, encrypted), tag))) throw new Error('invalid tag')
     const decrypted = new Uint8Array(sm4.decrypt([...encrypted], [...encryptionKey], { mode: 'cbc', iv: [...iv], output: 'array' }))
     return decodeUtf8(decrypted, 'SM4')
   } catch {
@@ -268,7 +361,10 @@ async function verifyHmac(key: Uint8Array<ArrayBuffer>, data: Uint8Array<ArrayBu
 function joinBytes(...values: Uint8Array<ArrayBuffer>[]): Uint8Array<ArrayBuffer> {
   const result = new Uint8Array(values.reduce((total, value) => total + value.length, 0))
   let offset = 0
-  values.forEach((value) => { result.set(value, offset); offset += value.length })
+  values.forEach((value) => {
+    result.set(value, offset)
+    offset += value.length
+  })
   return result
 }
 
@@ -278,7 +374,9 @@ function bytesToHex(bytes: Uint8Array): string {
 
 function bytesToBase64(bytes: Uint8Array): string {
   let binary = ''
-  bytes.forEach((byte) => { binary += String.fromCharCode(byte) })
+  bytes.forEach((byte) => {
+    binary += String.fromCharCode(byte)
+  })
   return btoa(binary)
 }
 
